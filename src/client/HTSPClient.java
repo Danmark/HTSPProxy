@@ -1,7 +1,11 @@
+package client;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.nio.*;
+
+import shared.HTSMsg;
 
 
 public class HTSPClient extends Thread {

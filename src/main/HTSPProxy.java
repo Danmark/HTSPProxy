@@ -1,4 +1,7 @@
+package main;
 import java.io.IOException;
+
+import client.HTSPClient;
 
 
 public class HTSPProxy {

@@ -1,4 +1,8 @@
+package client;
+
 import java.util.*;
+
+import shared.HTSMsg;
 
 
 public class TVChannels {
