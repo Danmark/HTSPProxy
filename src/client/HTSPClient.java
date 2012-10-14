@@ -17,6 +17,12 @@ public class HTSPClient extends Thread {
 	TVChannels chan;
 	ServerInfo serverInfo;
 	
+	public static String HTSPVERSION = "htspversion"; 
+	public static String SERVERNAME = "servername"; 
+	public static String SERVERVERSION = "serverversion";
+	public static String SERVERCAPABILITY = "servercapability";
+	public static String CHALLENGE = "challenge";
+	
 	public HTSPClient(ServerInfo serverInfo){
 		this.serverInfo = serverInfo;
 		this.chan = new TVChannels();
@@ -99,7 +105,25 @@ public class HTSPClient extends Thread {
 			chan.remove(reply);
 		} else{
 			Collection<String> helloReplySet = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
-			if (reply.keySet().containsAll(helloReplySet));
+			if (reply.keySet().containsAll(helloReplySet)){
+				for(String s : reply.keySet()){
+					if(s.equals(HTSPVERSION)){
+						serverInfo.setHtspversion((Long) reply.get(s));
+					}
+					else if (s.equals(SERVERNAME)){
+						serverInfo.setServername((String) reply.get(s));
+					}
+					else if (s.equals(SERVERVERSION)){
+						serverInfo.setServerversion((String) reply.get(s));
+					}
+					else if (s.equals(SERVERCAPABILITY)){
+						serverInfo.setServercapability((List<String>) reply.get(s));
+					}
+					else if (s.equals(CHALLENGE)){
+						serverInfo.setChallenge((byte[]) reply.get(s));
+					}
+				}
+			}
 			//TODO something is wrong. Do something about it.
 		}
 	}
