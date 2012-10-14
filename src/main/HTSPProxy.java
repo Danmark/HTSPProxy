@@ -22,11 +22,19 @@ public class HTSPProxy {
 		voldemort.setEnableAsyncMetadata(true);
 		servers.add(voldemort);
 		
+		List<HTSPClient> clients = new ArrayList<HTSPClient>();
 		for (ServerInfo serverInfo : servers) {
 			HTSPClient client = new HTSPClient(serverInfo);
+			clients.add(client);
 			client.start();
 			client.hello();
 			client.enableAsyncMetadata();
 		}
+		
+		
+		/**
+		 * HTSPServer server = new HTSPServer(clients);
+		 * server.start();
+		 */
 	}
 }
