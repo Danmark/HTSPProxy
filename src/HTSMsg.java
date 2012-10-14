@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 
 public class HTSMsg {
-	public Map<String,Object> map;
+	private Map<String,Object> map;
 	public static final int HMF_MAP  = 1;
 	public static final int HMF_S64  = 2;
 	public static final int HMF_STR  = 3;
@@ -194,6 +194,20 @@ public class HTSMsg {
 	private Map<String,Object> getMap(byte[] dataBytes, long dataLength) {
 		Map<String,Object> data = (new HTSMsg(dataBytes)).map;
 		return data;
+	}
+	
+	public Object get(String name){
+		return map.get(name);
+	}
+	
+	public Object put(String key, Object value){
+		Object ret = map.put(key, value);
+		return ret;
+	}
+	
+	public Set<String> keySet(){
+		Set<String> ret = map.keySet();
+		return ret;
 	}
 	
 	

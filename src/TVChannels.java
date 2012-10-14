@@ -2,8 +2,7 @@ import java.util.*;
 
 
 public class TVChannels {
-	//TODO implement get methods and set channels to private
-	HashMap<Long,HTSMsg> channels;
+	private HashMap<Long,HTSMsg> channels;
 	
 	public static final String CHANNELID = "channelId"; 			//required
 	public static final String CHANNELNUMBER = "channelNumber";		//required
@@ -26,7 +25,7 @@ public class TVChannels {
 	 * @param msg
 	 */
 	public void add(HTSMsg msg){
-		channels.put(((Number)msg.map.get(CHANNELID)).longValue(), msg);
+		channels.put(((Number)msg.get(CHANNELID)).longValue(), msg);
 	}
 	
 	/**
@@ -34,11 +33,11 @@ public class TVChannels {
 	 * @param reply
 	 */
 	public void update(HTSMsg msg) {
-		HTSMsg chann = channels.get(((Number)msg.map.get(CHANNELID)).longValue());			
+		HTSMsg chann = channels.get(((Number)msg.get(CHANNELID)).longValue());			
 		
-		for (String name : msg.map.keySet()){
+		for (String name : msg.keySet()){
 			if (Arrays.asList(HTSMsgFields).contains(name)){
-				chann.map.put(name, msg.map.get(name));
+				chann.put(name, msg.get(name));
 				System.out.println("Updated: " + name);
 			}
 			else{
@@ -48,7 +47,7 @@ public class TVChannels {
 	}
 	
 	public void remove(HTSMsg msg){
-		channels.remove(((Number)msg.map.get(CHANNELID)).intValue());
+		channels.remove(((Number)msg.get(CHANNELID)).intValue());
 	}
 	
 /*	channelId          u32   required   ID of channel.
@@ -61,43 +60,43 @@ public class TVChannels {
 	services           msg[] optional   List of available services (Added in version 5)
 */
 	
-	public long[] getChannels(){
-		//TODO implement
-		return new long[]{};
+	public Long[] getChannels(){
+		Long[] ret = (Long[]) channels.keySet().toArray();
+		return ret;
 	}
 	
-	public long getChannelNumber(long channelId){
-		//TODO implement
-		return 0;
+	public Long getChannelNumber(long channelId){
+		Long ret = (Long)channels.get(channelId).get(CHANNELNUMBER);
+		return ret;
 	}
 	
 	public String getChannelName(long channelId){
-		//TODO implement
-		return "";
+		String ret = (String)channels.get(channelId).get(CHANNELNAME);
+		return ret;
 	}
 	
 	public String getChannelIcon(long channelId){
-		//TODO implement
-		return "";
+		String ret = (String)channels.get(channelId).get(CHANNELICON);
+		return ret;			
 	}
 	
-	public long getEventId(long channelId){
-		//TODO implement
-		return 0;
+	public Long getEventId(long channelId){
+		Long ret = (Long)channels.get(channelId).get(EVENTID);
+		return ret;
 	}
 	
-	public long getNextEventId(long channelId){
-		//TODO implement
-		return 0;
+	public Long getNextEventId(long channelId){
+		Long ret = (Long)channels.get(channelId).get(NEXTEVENTID);
+		return ret;
 	}
 	
-	public long[] getTags(long channelId){
-		//TODO implement
-		return new long[]{};
+	public Long[] getTags(long channelId){
+		Long[] ret = (Long[])channels.get(channelId).get(TAGS);
+		return ret;
 	}
 	
 	public HTSMsg[] getServices(long channelId){
-		//TODO implement
-		return new HTSMsg[]{};
+		HTSMsg[] ret = (HTSMsg[])channels.get(channelId).get(SERVICES);
+		return ret;
 	}
 }

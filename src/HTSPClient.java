@@ -68,7 +68,7 @@ public class HTSPClient {
 	}
 	
 	public void handleReply(HTSMsg reply){
-		String method = (String) reply.map.get("method");
+		String method = (String) reply.get("method");
 		if (method == null){
 		} else if(method.equals("channelAdd")){
 			//System.out.println("adding Channel "+ reply.map.get("channelName") + " id = " + reply.map.get("channelId"));
