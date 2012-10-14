@@ -142,7 +142,6 @@ public class HTSMsg {
 				data = getBytes(dataBytes,dataLength);
 			}else if(type.equals(HMF_LIST)){
 				data = getList(dataBytes,dataLength);
-				System.out.println("Got a list, " + name + " " + Arrays.asList((Object[])data));
 			}else{
 				data="";
 				//TODO throw invalid type exception
@@ -163,8 +162,9 @@ public class HTSMsg {
 		}
 	}
 
-	private Object[] getList(byte[] dataBytes, long dataLength) {
-		Object[] data=((new HTSMsg(dataBytes)).map.values().toArray());
+	private List<Object> getList(byte[] dataBytes, long dataLength) {
+		HTSMsg msg = new HTSMsg(dataBytes);
+		List<Object> data= new ArrayList<Object>(msg.map.values());
 		return data;
 	}
 
@@ -208,6 +208,10 @@ public class HTSMsg {
 	public Set<String> keySet(){
 		Set<String> ret = map.keySet();
 		return ret;
+	}
+	
+	public String toString(){
+		return map.toString();
 	}
 	
 	

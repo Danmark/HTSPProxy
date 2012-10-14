@@ -11,11 +11,8 @@ public class HTSPProxy {
 		TVChannels channels= new TVChannels();
 		HTSPClient client = new HTSPClient("84.55.118.184", 9982, channels);
 		try {
-			System.out.println("Sending hello.");
 			client.hello();
-			System.out.println("Recieveing response:");
 			client.rcv();
-			System.out.println("Response recieved\nSending enableAsyncMetadata");
 			client.enableAsyncMetadata();
 			while(true){
 				//System.out.println("Recieveing response:");

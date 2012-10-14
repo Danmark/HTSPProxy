@@ -43,6 +43,7 @@ public class HTSPClient {
 	
 	private void send(HTSMsg msg) throws IOException{
 		byte[] bytes = msg.serialize();
+		System.out.println("Sending " + msg.get("method") + " " + msg);
 		os.write(bytes);
 		os.flush();
 	}
@@ -62,7 +63,7 @@ public class HTSPClient {
 		}
 		HTSMsg htsMsg = new HTSMsg(msg);
 		handleReply(htsMsg);
-		//System.out.println("Recived " + htsMsg.map.keySet());
+		System.out.println("Recived " + htsMsg);
 		
 		return htsMsg; 
 	}
