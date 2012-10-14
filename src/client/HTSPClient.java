@@ -5,6 +5,8 @@ import java.net.*;
 import java.util.*;
 import java.nio.*;
 
+import main.ServerInfo;
+
 import shared.HTSMsg;
 
 
@@ -13,12 +15,13 @@ public class HTSPClient extends Thread {
 	BufferedOutputStream os;
 	BufferedInputStream is;
 	TVChannels chan;
+	ServerInfo serverInfo;
 	
-	
-	public HTSPClient(String addr, int port){
+	public HTSPClient(ServerInfo serverInfo){
+		this.serverInfo = serverInfo;
 		this.chan = new TVChannels();
 		try {
-			socket = new Socket(addr, port);
+			socket = new Socket(serverInfo.getIP(), serverInfo.getPort());
 			os = new BufferedOutputStream(socket.getOutputStream());
 			is = new BufferedInputStream(socket.getInputStream());
 		} catch (UnknownHostException e) {
