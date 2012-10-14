@@ -27,6 +27,7 @@ public class HTSPClient extends Thread {
 		this.serverInfo = serverInfo;
 		this.chan = new TVChannels();
 		try {
+			System.out.println("Connecting to: " + serverInfo.getIP() + ":" + serverInfo.getPort());
 			socket = new Socket(serverInfo.getIP(), serverInfo.getPort());
 			os = new BufferedOutputStream(socket.getOutputStream());
 			is = new BufferedInputStream(socket.getInputStream());
@@ -46,11 +47,15 @@ public class HTSPClient extends Thread {
 		map.put("htspversion", new Long(6));
 		map.put("clientname", "HTSPProxy");
 		map.put("clientversion", "alpha");
+		if (serverInfo.needAuth()) {
+			map.put("username", serverInfo.getUsername());
+		}
 		HTSMsg hello = new HTSMsg(method, map);
 		send(hello);
 	}
 	
 	public void authenticate() throws IOException {
+		System.out.println("authenticating");
 		String method = "login";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("username", serverInfo.getUsername());
@@ -103,18 +108,8 @@ public class HTSPClient extends Thread {
 	public void handleReply(HTSMsg reply){
 		String method = (String) reply.get("method");
 		if (method == null){
-		} else if(method.equals("channelAdd")){
-			//System.out.println("adding Channel "+ reply.map.get("channelName") + " id = " + reply.map.get("channelId"));
-			chan.add(reply);
-			
-		} else if(method.equals("channelUpdate")){
-			//System.out.println("updating Channel where id= " + reply.map.get("channelId"));
-			chan.update(reply);
-			
-		} else if (method.equals("channelDelete")){
-			chan.remove(reply);
-		} else{
 			Collection<String> helloReplySet = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
+
 			if (reply.keySet().containsAll(helloReplySet)){
 				for(String s : reply.keySet()){
 					if(s.equals(HTSPVERSION)){
@@ -131,9 +126,25 @@ public class HTSPClient extends Thread {
 					}
 					else if (s.equals(CHALLENGE)){
 						serverInfo.setChallenge((byte[]) reply.get(s));
+						try {
+							authenticate();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
-			}
+			}		} else if(method.equals("channelAdd")){
+			//System.out.println("adding Channel "+ reply.map.get("channelName") + " id = " + reply.map.get("channelId"));
+			chan.add(reply);
+			
+		} else if(method.equals("channelUpdate")){
+			//System.out.println("updating Channel where id= " + reply.map.get("channelId"));
+			chan.update(reply);
+			
+		} else if (method.equals("channelDelete")){
+			chan.remove(reply);
+		} else{
 			//TODO something is wrong. Do something about it.
 		}
 	}

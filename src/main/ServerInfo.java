@@ -118,6 +118,9 @@ public class ServerInfo {
 	
 	public void setChallenge(byte[] challenge) {
 		this.challenge = challenge;
+		if (needAuth() && (getDigest() == null || getDigest().length == 0)) {
+			digest();
+		}
 	}
 	
 	public byte[] getChallenge() {

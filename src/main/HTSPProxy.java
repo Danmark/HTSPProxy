@@ -8,6 +8,7 @@ import client.HTSPClient;
 
 public class HTSPProxy {
 	
+	final static int STANDARD_PORT = 9982;
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -15,7 +16,7 @@ public class HTSPProxy {
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException {
 		List<ServerInfo> servers = new ArrayList<ServerInfo>();
-		ServerInfo voldemort = new ServerInfo("84.55.118.184", 3982, "Voldemort");
+		ServerInfo voldemort = new ServerInfo("84.55.118.184", STANDARD_PORT, "Voldemort");
 		voldemort.setUsername("test");
 		voldemort.setPassword("test");
 		voldemort.setEnableAsyncMetadata(true);
