@@ -11,6 +11,10 @@ import javax.management.RuntimeErrorException;
  * Holds information about a server.
  */
 public class ServerInfo {
+	final static int STANDARD_PORT = 9982;
+	final static String STANDARD_IP = "localhost";
+
+	
 	private String ip;
 	private int port;
 	private String name;
@@ -26,6 +30,18 @@ public class ServerInfo {
 	private byte[] challenge;
 	
 	private byte[] digest;
+	
+	public ServerInfo(String name){
+		this.name=name;
+		this.ip=STANDARD_IP;
+		this.port=STANDARD_PORT;
+	}
+	
+	public ServerInfo(String ip, String name){
+		this.ip=ip;
+		this.name=name;
+		this.port=STANDARD_PORT;
+	}
 	
 	public ServerInfo(String ip, int port, String name) {
 		this.ip = ip;
