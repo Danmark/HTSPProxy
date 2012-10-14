@@ -28,7 +28,7 @@ public class HTSPClient {
 		
 		String method="hello";
 		Map<String, Object> map=new HashMap<String,Object>();
-		map.put("htspversion", new Integer(6));
+		map.put("htspversion", new Long(6));
 		map.put("clientname", "HTSPProxy");
 		map.put("clientversion", "alpha");
 		HTSMsg hello = new HTSMsg(method, map);

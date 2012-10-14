@@ -4,6 +4,10 @@ import java.util.Map.Entry;
 import java.nio.ByteBuffer;
 
 
+/**
+ * A HTSMsg
+ * @author origon
+ */
 public class HTSMsg {
 	private Map<String,Object> map;
 	public static final int HMF_MAP  = 1;
@@ -23,6 +27,7 @@ public class HTSMsg {
 		this.map.putAll(map);
 		this.map.put("method", method);
 	}
+	
 	public HTSMsg(String method){
 		this();
 		this.map.put("method", method);
@@ -37,7 +42,7 @@ public class HTSMsg {
 		
 		if(entry instanceof Map){
 			ret = HMF_MAP;
-		}else if (entry instanceof Integer){
+		}else if (entry instanceof Long){
 			ret = HMF_S64;
 		}else if (entry instanceof String){
 			ret = HMF_STR;
@@ -46,7 +51,7 @@ public class HTSMsg {
 		}else if (entry instanceof List){
 			ret = HMF_LIST;
 		}else {
-			//TODO find some exception to throw
+			throw new IllegalArgumentException("The datatype '" + entry.getClass() + "' is not implemented");
 		}
 		
 		return ret;
@@ -58,30 +63,41 @@ public class HTSMsg {
 		for (Entry<String, Object> entry : map.entrySet()){
 			String name = entry.getKey();
 			Object value = entry.getValue();
-			Integer type = getType(value);
+			int type = getType(value);
 			byte[] data = new byte[0];
-			if(type.equals(HMF_MAP)){
-				//TODO get the data from the map
-			}else if(type.equals(HMF_S64)){
+			switch (type) {
+			case HMF_MAP:
+				// TODO: get the data from the map
+				break;
+
+			case HMF_S64:
 				int intData=((Number)value).intValue();
 				data = new byte[]
 						{ 
-							(byte)(intData >> 24), 
-							(byte)(intData >> 16 & 0xff), 
-							(byte)(intData >> 8 & 0xff), 
-							(byte)(intData & 0xff) 
+						(byte)(intData >> 24), 
+						(byte)(intData >> 16 & 0xff), 
+						(byte)(intData >> 8 & 0xff), 
+						(byte)(intData & 0xff) 
 						};
-			}else if(type.equals(HMF_STR)){
+				break;
+
+			case HMF_STR:
 				data=((String)value).getBytes();
-			}else if(type.equals(HMF_BIN)){
+				break;
+
+			case HMF_BIN:
 				data=(byte[])value;
-			}else if(type.equals(HMF_LIST)){
+				break;
+
+			case HMF_LIST:
 				System.out.println("Got a list, dot know what to do.");
 				//TODO get the data from the list
-			}else{
-				//TODO throw invalid type exception
+				break;
+
+			default:
+				throw new RuntimeException("Unsupported type: " + type);
 			}
-			
+
 			//TYPE
 			msg.write(type & 0xff);
 			//NAMELENGTH
@@ -111,13 +127,12 @@ public class HTSMsg {
 	public void deserialize(byte[] msg){
 		int i = 0;
 
-		while(i<msg.length){			
-			Integer type=0;
+		while(i<msg.length){
 			short nameLength=0;
 			long dataLength=0;
 			String name="";
 			Object data="";
-			type = (int)msg[(int)i];
+			int type = (int)msg[(int)i];
 			i++;
 			nameLength = msg[(int)i];
 			i++;
@@ -132,20 +147,30 @@ public class HTSMsg {
 			}
 			i+=nameLength;
 			byte[] dataBytes = Arrays.copyOfRange(msg, i, (int)(i + dataLength));
-			if(type.equals(HMF_MAP)){
+			switch (type) {
+			case HMF_MAP:
 				data = getMap(dataBytes,dataLength);
-			}else if(type.equals(HMF_S64)){
+				break;
+				
+			case HMF_S64:
 				data = getS64(dataBytes,dataLength);
-			}else if(type.equals(HMF_STR)){
+				break;
+				
+			case HMF_STR:
 				data = getString(dataBytes,dataLength);
-			}else if(type.equals(HMF_BIN)){
+				break;
+				
+			case HMF_BIN:
 				data = getBytes(dataBytes,dataLength);
-			}else if(type.equals(HMF_LIST)){
+				break;
+				
+			case HMF_LIST:
 				data = getList(dataBytes,dataLength);
-			}else{
-				data="";
-				//TODO throw invalid type exception
+				break;
+			default:
+				throw new RuntimeException("Unsupported type: " + type);
 			}
+			
 			if(map.containsKey(name)){
 				name = noName.toString();
 				noName++;
@@ -213,6 +238,4 @@ public class HTSMsg {
 	public String toString(){
 		return map.toString();
 	}
-	
-	
 }
