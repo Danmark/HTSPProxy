@@ -52,7 +52,13 @@ public class HTSPClient extends Thread {
 	
 	public HTSMsg rcv() throws IOException{
 		byte[] lenBytes = new byte[4];
-		is.read(lenBytes, 0, 4);
+		while (is.read(lenBytes, 0, 4) != 4) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+			}
+		}
+		
 		long len = ByteBuffer.wrap(lenBytes,0,4).getInt();
 		byte[] msg = new byte[(int)len];
 		while (is.read(msg,0,(int)len)!=len){
