@@ -4,18 +4,51 @@ import java.util.*;
 public class TVChannels {
 	private HashMap<Long,HTSMsg> channels;
 	
-	public static final String CHANNELID = "channelId"; 			//required
-	public static final String CHANNELNUMBER = "channelNumber";		//required
-	public static final String CHANNELNAME = "channelName";			//required
-	public static final String CHANNELICON = "channelIcon";			//optional
-	public static final String EVENTID = "eventId";					//optional
-	public static final String NEXTEVENTID = "nextEventId";			//optional
-	public static final String TAGS = "tags";						//optional
-	public static final String SERVICES = "services";				//optional
+	/**
+	 * required
+	 */
+	public static final String CHANNELID = "channelId";
+	
+	/**
+	 * required
+	 */
+	public static final String CHANNELNUMBER = "channelNumber";
+	
+	/**
+	 * required
+	 */
+	public static final String CHANNELNAME = "channelName";
+	
+	/**
+	 * optional
+	 */
+	public static final String CHANNELICON = "channelIcon";
+	
+	/**
+	 * optional
+	 */
+	public static final String EVENTID = "eventId";
+	
+	/**
+	 * optional
+	 */
+	public static final String NEXTEVENTID = "nextEventId";
+	
+	/**
+	 * optional
+	 */
+	public static final String TAGS = "tags";
+	
+	/**
+	 * optional
+	 */
+	public static final String SERVICES = "services";
 	
 	public static final String[] HTSMsgFields = {CHANNELID,CHANNELNUMBER,CHANNELNAME,CHANNELICON,EVENTID,NEXTEVENTID,TAGS,SERVICES};
 
-	
+	/**
+	 * Creates a new TVChannels
+	 */
 	public TVChannels(){
 		channels = new HashMap<Long,HTSMsg>();
 	}
@@ -60,11 +93,20 @@ public class TVChannels {
 	services           msg[] optional   List of available services (Added in version 5)
 */
 	
+	/**
+	 * Returns a array of all the channelIDs
+	 * @return
+	 */
 	public Long[] getChannels(){
 		Long[] ret = (Long[]) channels.keySet().toArray();
 		return ret;
 	}
 	
+	/**
+	 * Returns the channel number.
+	 * @param channelId
+	 * @return
+	 */
 	public Long getChannelNumber(long channelId){
 		Long ret = (Long)channels.get(channelId).get(CHANNELNUMBER);
 		return ret;
