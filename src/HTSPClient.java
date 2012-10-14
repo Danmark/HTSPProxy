@@ -97,7 +97,6 @@ public class HTSPClient extends Thread {
 	
 	public void run(){
 		try {
-			hello();
 			while(true){
 				rcv();
 			}

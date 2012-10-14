@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 
 /**
  * A HTSMsg
- * @author origon
  */
 public class HTSMsg {
 	private Map<String,Object> map;
