@@ -2,7 +2,8 @@ import java.util.*;
 
 
 public class TVChannels {
-	HashMap<Integer,HTSMsg> channels;
+	//TODO implement get methods and set channels to private
+	HashMap<Long,HTSMsg> channels;
 	
 	public static final String CHANNELID = "channelId"; 			//required
 	public static final String CHANNELNUMBER = "channelNumber";		//required
@@ -17,7 +18,7 @@ public class TVChannels {
 
 	
 	public TVChannels(){
-		channels = new HashMap<Integer,HTSMsg>();
+		channels = new HashMap<Long,HTSMsg>();
 	}
 	
 	/**
@@ -25,25 +26,7 @@ public class TVChannels {
 	 * @param msg
 	 */
 	public void add(HTSMsg msg){
-		channels.put(((Number)msg.map.get(CHANNELID)).intValue(), msg);
-		/*Integer[] tags = new Integer[msg.map.size()];
-		LinkedList<Integer> tagList = new LinkedList<Integer>();
-		for (Object o : (Object[])msg.map.get(TAGS)){
-			tagList.add((Integer)o);
-		}
-		tagList.toArray(tags);
-		TVChannel chan = new TVChannel( ((Number)msg.map.get(CHANNELID)).intValue() );
-		for (String name: msg.map.keySet())
-			TVChannel.add(name,)
-			
-		TVChannel chan = new TVChannel(((Number)msg.map.get(CHANNELID)).intValue(),
-				(String)msg.map.get(CHANNELNAME),
-				((Number)msg.map.get(CHANNELNUMBER)).intValue(), 
-				(String)msg.map.get(CHANNELICON),
-				((Number)msg.map.get(EVENTID)).intValue(), 
-				tags
-				);
-		channels.put( chan.channelId , chan);*/
+		channels.put(((Number)msg.map.get(CHANNELID)).longValue(), msg);
 	}
 	
 	/**
@@ -51,12 +34,16 @@ public class TVChannels {
 	 * @param reply
 	 */
 	public void update(HTSMsg msg) {
-		HTSMsg chann = channels.get((Number)msg.map.get(CHANNELID));			
+		HTSMsg chann = channels.get(((Number)msg.map.get(CHANNELID)).longValue());			
+		
 		for (String name : msg.map.keySet()){
-			if (Arrays.asList(HTSMsgFields).contains(name))
+			if (Arrays.asList(HTSMsgFields).contains(name)){
 				chann.map.put(name, msg.map.get(name));
-			else
+				System.out.println("Updated: " + name);
+			}
+			else{
 				System.out.println("N.B. Unrecognized field: " + name);
+			}
 		}		
 	}
 	
@@ -64,29 +51,53 @@ public class TVChannels {
 		channels.remove(((Number)msg.map.get(CHANNELID)).intValue());
 	}
 	
-/*	private class TVChannel {
-		int channelId;        
-		String channelName;      
-		int channelNumber;    
-		String channelIcon;     
-		int eventId;   //optional
-		Integer[] tags;    //optional
-		
-		public TVChannel(int channelId, String channelName, int channelNumber, String channelIcon, int eventId, Integer[] tags){
-			this.channelId=channelId;
-			this.channelName=channelName;
-			this.channelNumber=channelNumber;    
-			this.channelIcon=channelIcon; 
-			this.eventId=eventId;
-			this.tags=tags;
-		}
-		
-		public TVChannel(int intValue) {
-			// TODO Auto-generated constructor stub
-		}
-
-		public String toString() {
-			return channelName + " (" + channelId + ") Tags = " + Arrays.asList(tags);
-		}
-	}*/
+/*	channelId          u32   required   ID of channel.
+	channelNumber      u32   required   Channel number, 0 means unconfigured.
+	channelName        str   required   Name of channel.
+	channelIcon        str   optional   URL to an icon representative for the channel.
+	eventId            u32   optional   ID of the current event on this channel.
+	nextEventId        u32   optional   ID of the next event on the channel.
+	tags               u32[] optional   Tags this channel is mapped to.
+	services           msg[] optional   List of available services (Added in version 5)
+*/
+	
+	public long[] getChannels(){
+		//TODO implement
+		return new long[]{};
+	}
+	
+	public long getChannelNumber(long channelId){
+		//TODO implement
+		return 0;
+	}
+	
+	public String getChannelName(long channelId){
+		//TODO implement
+		return "";
+	}
+	
+	public String getChannelIcon(long channelId){
+		//TODO implement
+		return "";
+	}
+	
+	public long getEventId(long channelId){
+		//TODO implement
+		return 0;
+	}
+	
+	public long getNextEventId(long channelId){
+		//TODO implement
+		return 0;
+	}
+	
+	public long[] getTags(long channelId){
+		//TODO implement
+		return new long[]{};
+	}
+	
+	public HTSMsg[] getServices(long channelId){
+		//TODO implement
+		return new HTSMsg[]{};
+	}
 }

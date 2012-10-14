@@ -182,12 +182,12 @@ public class HTSMsg {
 		}		
 	}
 
-	private int getS64(byte[] dataBytes, long dataLength) {
-		byte[] s64 = new byte[4];
-		for (int k = 4-(int)dataLength ; k<4 ;k++)
-			s64[k] = dataBytes[k-4+(int)dataLength];
+	private long getS64(byte[] dataBytes, long dataLength) {
+		byte[] s64 = new byte[8];
+		for (int k = 8-(int)dataLength ; k<8 ;k++)
+			s64[k] = dataBytes[k-8+(int)dataLength];
 		ByteBuffer buff = ByteBuffer.wrap(s64);
-		int data = buff.getInt();
+		long data = buff.getLong();
 		return data;
 	}
 
