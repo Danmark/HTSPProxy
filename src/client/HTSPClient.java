@@ -23,6 +23,8 @@ public class HTSPClient extends Thread {
 	public static String SERVERCAPABILITY = "servercapability";
 	public static String CHALLENGE = "challenge";
 	
+	public static Collection<String> helloReplySet = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
+	
 	public HTSPClient(ServerInfo serverInfo){
 		this.serverInfo = serverInfo;
 		this.chan = new TVChannels();
@@ -108,8 +110,6 @@ public class HTSPClient extends Thread {
 	public void handleReply(HTSMsg reply){
 		String method = (String) reply.get("method");
 		if (method == null){
-			Collection<String> helloReplySet = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
-
 			if (reply.keySet().containsAll(helloReplySet)){
 				for(String s : reply.keySet()){
 					if(s.equals(HTSPVERSION)){
@@ -134,7 +134,8 @@ public class HTSPClient extends Thread {
 						}
 					}
 				}
-			}		} else if(method.equals("channelAdd")){
+			}		
+		} else if(method.equals("channelAdd")){
 			//System.out.println("adding Channel "+ reply.map.get("channelName") + " id = " + reply.map.get("channelId"));
 			chan.add(reply);
 			
