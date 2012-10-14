@@ -4,13 +4,15 @@ import java.util.*;
 import java.nio.*;
 
 
-public class HTSPClient {
+public class HTSPClient extends Thread {
 	Socket socket;
 	BufferedOutputStream os;
 	BufferedInputStream is;
 	TVChannels chan;
-	public HTSPClient(String addr, int port, TVChannels chan){
-		this.chan = chan;
+	
+	
+	public HTSPClient(String addr, int port){
+		this.chan = new TVChannels();
 		try {
 			socket = new Socket(addr, port);
 			os = new BufferedOutputStream(socket.getOutputStream());
@@ -55,7 +57,8 @@ public class HTSPClient {
 		byte[] msg = new byte[(int)len];
 		while (is.read(msg,0,(int)len)!=len){
 			try {
-				Thread.sleep(10);
+				wait(100);
+				//TODO check wait time
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -83,6 +86,18 @@ public class HTSPClient {
 			chan.remove(reply);
 		} else{
 			//TODO something is wrong. Do something about it.
+		}
+	}
+	
+	public void run(){
+		try {
+			hello();
+			while(true){
+				rcv();
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 	
