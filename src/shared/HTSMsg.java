@@ -64,10 +64,11 @@ public class HTSMsg {
 			String name = entry.getKey();
 			Object value = entry.getValue();
 			int type = getType(value);
-			byte[] data = new byte[0];
+			final byte[] data;
 			switch (type) {
 			case HMF_MAP:
 				// TODO: get the data from the map
+				data = new byte[0];
 				break;
 
 			case HMF_S64:
@@ -90,6 +91,7 @@ public class HTSMsg {
 				break;
 
 			case HMF_LIST:
+				data = new byte[0];
 				System.out.println("Got a list, dot know what to do.");
 				//TODO get the data from the list
 				break;

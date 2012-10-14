@@ -50,6 +50,16 @@ public class HTSPClient extends Thread {
 		send(hello);
 	}
 	
+	public void authenticate() throws IOException {
+		String method = "login";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("username", serverInfo.getUsername());
+		map.put("digest", serverInfo.getDigest());
+		
+		HTSMsg msg = new HTSMsg(method, map);
+		send(msg);
+	}
+	
 	public void enableAsyncMetadata() throws IOException{
 		String method="enableAsyncMetadata";
 		HTSMsg enableAsyncMetadata = new HTSMsg(method);
