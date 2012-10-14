@@ -91,6 +91,8 @@ public class HTSPClient extends Thread {
 		} else if (method.equals("channelDelete")){
 			chan.remove(reply);
 		} else{
+			Collection<String> helloReplySet = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
+			if (reply.keySet().containsAll(helloReplySet));
 			//TODO something is wrong. Do something about it.
 		}
 	}
