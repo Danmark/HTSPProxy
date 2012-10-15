@@ -5,8 +5,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import javax.management.RuntimeErrorException;
-
 /**
  * Holds information about a server.
  */
@@ -31,30 +29,48 @@ public class ServerInfo {
 	
 	private byte[] digest;
 	
-	public ServerInfo(String name){
-		this.name=name;
-		this.ip=STANDARD_IP;
-		this.port=STANDARD_PORT;
+	public static class Builder{
+		private String name;
+		private String ip = STANDARD_IP;
+		private int port = STANDARD_PORT;
+		private String username = "";
+		private String password = "";
+		
+		public Builder(String name){
+			this.name=name;
+		}
+		
+		public Builder ip(String ip){
+			this.ip=ip;
+			return this;
+		}
+		
+		public Builder port(int port){
+			this.port=port;
+			return this;
+		}
+		public Builder username(String username){
+			this.username=username;
+			return this;
+		}
+		public Builder password(String password){
+			this.password=password;
+			return this;
+		}
+		public ServerInfo build(){
+			return new ServerInfo(this);
+		}
+		
 	}
-	
-	public ServerInfo(String ip, String name){
-		this.ip=ip;
-		this.name=name;
-		this.port=STANDARD_PORT;
+		
+	private ServerInfo(Builder builder) {
+		this.name = builder.name;
+		this.ip = builder.ip;
+		this.port = builder.port;
+		this.username = builder.username;
+		this.password = builder.password;
 	}
-	
-	public ServerInfo(String ip, int port, String name) {
-		this.ip = ip;
-		this.port = port;
-		this.name = name;
-	}
-	
-	public ServerInfo(String ip, int port, String name, String username, String password) {
-		this(ip, port, username);
-		this.username = username;
-		this.password = password;
-	}
-	
+
 	public String getIP() {
 		return this.ip;
 	}
