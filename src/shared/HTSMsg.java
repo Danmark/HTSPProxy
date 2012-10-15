@@ -32,11 +32,17 @@ public class HTSMsg {
 		this();
 		this.map.put("method", method);
 	}
+	
+	public HTSMsg(Map<String, Object> map) {
+		this();
+		this.map.putAll(map);
+	}
 	public HTSMsg(byte[] msg){
 		this();
 		deserialize(msg);
 	}
-	
+
+
 	private int getType(Object entry){
 		int ret = 0;
 		

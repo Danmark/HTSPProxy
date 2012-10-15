@@ -44,10 +44,8 @@ public class Config {
 	public List<ServerInfo> getServers(){
 		List<ServerInfo> list = new ArrayList<ServerInfo>();
 		NodeList nodeList = doc.getElementsByTagName("server");
-		System.out.println(nodeList.getLength());
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node n = nodeList.item(i);
-			System.out.println(i+" "+n);
 			
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element e = (Element) n;

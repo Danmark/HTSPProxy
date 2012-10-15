@@ -75,7 +75,9 @@ public class TVChannels {
 		for (String name : msg.keySet()){
 			if (Arrays.asList(HTSMsgFields).contains(name)){
 				chann.put(name, msg.get(name));
-				System.out.println("Updated: " + name);
+			}
+			else if (name.equals("method")){
+				//This is normal, do nothing...
 			}
 			else{
 				System.out.println("N.B. Unrecognized field: " + name);

@@ -57,13 +57,9 @@ public class HTSPClient extends Thread {
 	}
 	
 	public void authenticate() throws IOException {
-		System.out.println("authenticating");
-		String method = "login";
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("username", serverInfo.getUsername());
-		map.put("digest", serverInfo.getDigest());
-		
-		HTSMsg msg = new HTSMsg(method, map);
+		HTSMsg msg = new HTSMsg("authenticate");
+		msg.put("username", serverInfo.getUsername());
+		msg.put("digest", serverInfo.getDigest());
 		send(msg);
 	}
 	
@@ -101,8 +97,8 @@ public class HTSPClient extends Thread {
 			}
 		}
 		HTSMsg htsMsg = new HTSMsg(msg);
-		handleReply(htsMsg);
 		System.out.println("Recived " + htsMsg);
+		handleReply(htsMsg);
 		
 		return htsMsg; 
 	}
@@ -136,13 +132,10 @@ public class HTSPClient extends Thread {
 				}
 			}		
 		} else if(method.equals("channelAdd")){
-			//System.out.println("adding Channel "+ reply.map.get("channelName") + " id = " + reply.map.get("channelId"));
 			chan.add(reply);
 			
 		} else if(method.equals("channelUpdate")){
-			//System.out.println("updating Channel where id= " + reply.map.get("channelId"));
 			chan.update(reply);
-			
 		} else if (method.equals("channelDelete")){
 			chan.remove(reply);
 		} else{
