@@ -17,6 +17,10 @@ public class HTSPClient extends Thread {
 	TVChannels chan;
 	ServerInfo serverInfo;
 	
+	private int clientid;
+	
+	private ClientTags tags;
+	
 	public static String HTSPVERSION = "htspversion"; 
 	public static String SERVERNAME = "servername"; 
 	public static String SERVERVERSION = "serverversion";
@@ -28,6 +32,7 @@ public class HTSPClient extends Thread {
 	public HTSPClient(ServerInfo serverInfo){
 		this.serverInfo = serverInfo;
 		this.chan = new TVChannels();
+		this.tags = new ClientTags();
 		try {
 			System.out.println("Connecting to: " + serverInfo.getIP() + ":" + serverInfo.getPort());
 			socket = new Socket(serverInfo.getIP(), serverInfo.getPort());
@@ -40,6 +45,10 @@ public class HTSPClient extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void setClientid(int clientid) {
+		this.clientid = clientid;
 	}
 	
 	public void hello() throws IOException{
@@ -138,6 +147,13 @@ public class HTSPClient extends Thread {
 			chan.update(reply);
 		} else if (method.equals("channelDelete")){
 			chan.remove(reply);
+		} else if (method.equals("tagAdd")) {
+			System.out.println("Got new tag: " + reply.get("tagName"));
+			tags.add(reply);
+		} else if (method.equals("tagUpdate")) {
+			tags.update(reply);
+		} else if (method.equals("tagDelete")) {
+			tags.remove(reply);
 		} else{
 			//TODO something is wrong. Do something about it.
 		}

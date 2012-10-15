@@ -20,8 +20,10 @@ public class HTSPProxy {
 		servers = conf.getServers();
 		
 		List<HTSPClient> clients = new ArrayList<HTSPClient>();
+		int clientid = 0;
 		for (ServerInfo serverInfo : servers) {
 			HTSPClient client = new HTSPClient(serverInfo);
+			client.setClientid(clientid++);
 			clients.add(client);
 			client.start();
 			client.hello();
