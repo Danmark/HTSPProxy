@@ -14,7 +14,7 @@ public class HTSPClient extends Thread {
 	Socket socket;
 	BufferedOutputStream os;
 	BufferedInputStream is;
-	TVChannels chan;
+	ClientTVChannels chan;
 	ServerInfo serverInfo;
 	
 	private int clientid;
@@ -31,7 +31,7 @@ public class HTSPClient extends Thread {
 	
 	public HTSPClient(ServerInfo serverInfo){
 		this.serverInfo = serverInfo;
-		this.chan = new TVChannels();
+		this.chan = new ClientTVChannels();
 		this.tags = new ClientTags();
 		try {
 			System.out.println("Connecting to: " + serverInfo.getIP() + ":" + serverInfo.getPort());

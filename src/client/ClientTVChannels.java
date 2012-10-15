@@ -5,7 +5,7 @@ import java.util.*;
 import shared.HTSMsg;
 
 
-public class TVChannels {
+public class ClientTVChannels {
 	private HashMap<Long,HTSMsg> channels;
 	
 	/**
@@ -53,7 +53,7 @@ public class TVChannels {
 	/**
 	 * Creates a new TVChannels
 	 */
-	public TVChannels(){
+	public ClientTVChannels(){
 		channels = new HashMap<Long,HTSMsg>();
 	}
 	
