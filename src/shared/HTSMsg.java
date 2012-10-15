@@ -15,6 +15,7 @@ public class HTSMsg {
 	public static final int HMF_STR  = 3;
 	public static final int HMF_BIN  = 4;
 	public static final int HMF_LIST = 5;
+	public static final int[] VALID_TYPES = {0,HMF_MAP,HMF_S64,HMF_STR,HMF_BIN,HMF_LIST};
 	private Integer noName;
 
 	public HTSMsg(){
@@ -144,6 +145,7 @@ public class HTSMsg {
 
 	public void deserialize(byte[] msg){
 		int i = 0;
+		System.out.println("msg.length: " + msg.length);
 
 		while(i<msg.length){
 			short nameLength=0;
@@ -151,6 +153,26 @@ public class HTSMsg {
 			String name="";
 			Object data="";
 			int type = (int)msg[i];
+			System.out.println("type: "+type);
+			boolean validType=false;
+			for(int k :VALID_TYPES){
+				validType = validType || type == k;
+			}
+			if(!validType){
+				System.out.println("ERROR!!");
+				byte[] tmp = new byte[msg.length+4];
+				System.out.println(Integer.toHexString(msg.length));
+				byte[] lenBytes = Integer.toHexString(msg.length).getBytes();
+				for(int k = 3 ;k>=lenBytes.length;k--){
+					tmp[k]=lenBytes[k-lenBytes.length];
+				}
+				for (int k = 0;k<msg.length;k++){
+					tmp[k+4]=msg[4];
+				}
+				msg=tmp;
+				type = (int)msg[i];
+				
+			}
 			i++;
 			nameLength = ByteBuffer.wrap(new byte[]{0,msg[i]}).getShort();
 			i++;
@@ -163,10 +185,9 @@ public class HTSMsg {
 			ByteBuffer buff = ByteBuffer.wrap(zeros);
 
 			dataLength = buff.getLong();
-			System.out.println("dataLength: " + dataLength);
+			System.out.println("type: " + type);
 			System.out.println("nameLength: " + nameLength);
-			System.out.println("i: " + i);
-			System.out.println("msg.length: " + msg.length);
+			System.out.println("dataLength: " + dataLength);
 			i+=4;
 			try {
 				name = new String(Arrays.copyOfRange(msg, i, i+nameLength), "UTF-8");

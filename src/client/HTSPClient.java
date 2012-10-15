@@ -68,11 +68,10 @@ public class HTSPClient extends Thread {
 		send(msg);
 	}
 	
-	public void subscribe(long channelId) throws IOException{
+	public void subscribe(long channelId, long subscriptionId) throws IOException{
 		HTSMsg msg = new HTSMsg("subscribe");
 		msg.put("channelId", channelId);
-		msg.put("subscriptionId",(long) 1);
-		//TODO Handle the subscriptionid
+		msg.put("subscriptionId",subscriptionId);
 		send(msg);
 	}
 	
@@ -85,15 +84,20 @@ public class HTSPClient extends Thread {
 
 	
 	public HTSMsg rcv() throws IOException{
-		byte[] lenBytes = new byte[4];
+		byte[] lenBytes = new byte[8];
 		while (is.read(lenBytes, 0, 4) != 4) {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 			}
 		}
+		for(int i=0;i<4;i++){
+			lenBytes[i+4]=lenBytes[i];
+			lenBytes[i]=0;
+		}
 		
-		long len = ByteBuffer.wrap(lenBytes,0,4).getInt();
+		long len = ByteBuffer.wrap(lenBytes).getLong();
+		System.out.println("len: "+len);
 		byte[] msg = new byte[(int)len];
 		while (is.read(msg,0,(int)len)!=len){
 			try {

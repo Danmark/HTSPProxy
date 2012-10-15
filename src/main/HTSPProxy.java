@@ -27,7 +27,7 @@ public class HTSPProxy {
 			client.hello();
 			client.enableAsyncMetadata();
 			Thread.sleep(1000);
-			client.subscribe(126);
+			client.subscribe(126,1);
 		}
 				
 		/**
