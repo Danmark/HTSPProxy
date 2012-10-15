@@ -163,6 +163,7 @@ public class HTSPClient extends Thread {
 		} else if(method.equals("muxpkt")){
 			subscriptions.muxpkt(msg);
 		} else{
+			System.out.println("unimplemented ClientToServer-method: " + method);
 			//TODO something is wrong. Do something about it.
 		}		
 	}
@@ -197,14 +198,10 @@ public class HTSPClient extends Thread {
 		} else if(method.equals("subscriptionChangeWeight")){
 			ReplyHandlers.handleSubscriptionChangeWeightReply(msg,this);
 		} else{
-			
-		}
-				
+			System.out.println("unimplemented reply: " + method);
+		}	
 	}
 
-	
-
-	
 	public void run(){
 		try {
 			while(true){
