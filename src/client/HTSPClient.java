@@ -29,10 +29,13 @@ public class HTSPClient extends Thread {
 	
 	public static Collection<String> helloReplySet = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
 	
+	private MagicSequence sequence;
+	
 	public HTSPClient(ServerInfo serverInfo){
 		this.serverInfo = serverInfo;
 		this.chan = new ClientTVChannels();
 		this.tags = new ClientTags();
+		this.sequence = new MagicSequence();
 		try {
 			System.out.println("Connecting to: " + serverInfo.getIP() + ":" + serverInfo.getPort());
 			socket = new Socket(serverInfo.getIP(), serverInfo.getPort());
@@ -52,12 +55,12 @@ public class HTSPClient extends Thread {
 	}
 	
 	public void hello() throws IOException{
-		
 		String method="hello";
 		Map<String, Object> map=new HashMap<String,Object>();
 		map.put("htspversion", new Long(6));
 		map.put("clientname", "HTSPProxy");
 		map.put("clientversion", "alpha");
+		map.put("seq", sequence.pop(method));
 		if (serverInfo.needAuth()) {
 			map.put("username", serverInfo.getUsername());
 		}
@@ -113,6 +116,10 @@ public class HTSPClient extends Thread {
 	}
 	
 	public void handleReply(HTSMsg reply){
+		if (reply.get("seq") != null) {
+			Long seq = (Long) reply.get("seq");
+			System.out.println("Got seq: " + seq + ", sender-method=" + sequence.giveBack(seq));
+		}
 		String method = (String) reply.get("method");
 		if (method == null){
 			if (reply.keySet().containsAll(helloReplySet)){
