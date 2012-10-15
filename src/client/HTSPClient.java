@@ -22,15 +22,7 @@ public class HTSPClient extends Thread {
 	private int clientid;
 	
 	private ClientTags tags;
-	
-	public static String HTSPVERSION = "htspversion"; 
-	public static String SERVERNAME = "servername"; 
-	public static String SERVERVERSION = "serverversion";
-	public static String SERVERCAPABILITY = "servercapability";
-	public static String CHALLENGE = "challenge";
-	
-	public static Collection<String> helloReplySet = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
-	
+		
 	private MagicSequence sequence;
 	
 	public HTSPClient(ServerInfo serverInfo){
@@ -116,80 +108,102 @@ public class HTSPClient extends Thread {
 		}
 		HTSMsg htsMsg = new HTSMsg(msg);
 		System.out.println("Recived " + htsMsg);
-		handleReply(htsMsg);
+		handleHTSMsg(htsMsg);
 		
 		return htsMsg; 
 	}
 	
-	private void handleReply(HTSMsg reply){
-		if (reply.get("seq") != null) {
-			Long seq = (Long) reply.get("seq");
-			System.out.println("Got seq: " + seq + ", sender-method=" + sequence.giveBack(seq));
+	private void handleHTSMsg(HTSMsg msg){
+		String method = (String) msg.get("method");
+
+		if (msg.get("seq") != null) {
+			handleReply(msg, (Long) msg.get("seq"));	
 		}
-		String method = (String) reply.get("method");
-		if (method == null){
-			if (reply.keySet().containsAll(helloReplySet)){
-				for(String s : reply.keySet()){
-					if(s.equals(HTSPVERSION)){
-						serverInfo.setHtspversion((Long) reply.get(s));
-					}
-					else if (s.equals(SERVERNAME)){
-						serverInfo.setServername((String) reply.get(s));
-					}
-					else if (s.equals(SERVERVERSION)){
-						serverInfo.setServerversion((String) reply.get(s));
-					}
-					else if (s.equals(SERVERCAPABILITY)){
-						serverInfo.setServercapability((List<String>) reply.get(s));
-					}
-					else if (s.equals(CHALLENGE)){
-						serverInfo.setChallenge((byte[]) reply.get(s));
-						try {
-							authenticate();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			}		
-		} else if(method.equals("channelAdd")){
-			chan.add(reply);
+		else if (method == null){
+			System.out.println("no seq, no method. Something is wrong. Forgot to send seq?");		
+		} else{
+			handleClientToServerMethod(msg, method);
+		} 
+			
+		
+	}
+	
+	private void handleClientToServerMethod(HTSMsg msg, String method) {
+		if(method.equals("channelAdd")){
+			chan.add(msg);
 		} else if(method.equals("channelUpdate")){
-			chan.update(reply);
+			chan.update(msg);
 		} else if (method.equals("channelDelete")){
-			chan.remove(reply);
+			chan.remove(msg);
 		} else if (method.equals("tagAdd")) {
-			System.out.println("Got new tag: " + reply.get("tagName"));
-			tags.add(reply);
+			System.out.println("Got new tag: " + msg.get("tagName"));
+			tags.add(msg);
 		} else if (method.equals("tagUpdate")) {
-			tags.update(reply);
+			tags.update(msg);
 		} else if (method.equals("tagDelete")) {
-			tags.remove(reply);
+			tags.remove(msg);
 		} else if(method.equals("eventAdd")){
-			events.add(reply);
+			events.add(msg);
 		} else if(method.equals("eventUpdate")){
-			events.update(reply);
+			events.update(msg);
 		} else if(method.equals("eventDeleted")){
-			events.remove(reply);
+			events.remove(msg);
 		} else if(method.equals("initialSyncCompleted")){
 			//TODO do something maybe.
 		} else if(method.equals("subscriptionStart")){
-			subscriptions.start(reply);
+			subscriptions.start(msg);
 		} else if(method.equals("subscriptionStop")){
-			subscriptions.stop(reply);
+			subscriptions.stop(msg);
 		} else if(method.equals("subscriptionStatus")){
-			subscriptions.status(reply);
+			subscriptions.status(msg);
 		} else if(method.equals("queueStatus")){
-			subscriptions.queueStatus(reply);
+			subscriptions.queueStatus(msg);
 		} else if(method.equals("signalStatus")){
-			subscriptions.signalStatus(reply);
+			subscriptions.signalStatus(msg);
 		} else if(method.equals("muxpkt")){
-			subscriptions.muxpkt(reply);
+			subscriptions.muxpkt(msg);
 		} else{
 			//TODO something is wrong. Do something about it.
-		}
+		}		
 	}
+
+	private void handleReply(HTSMsg msg, Long seq) {
+		String method = sequence.giveBack(seq);
+		System.out.println("Got seq: " + seq + ", sender-method=" + method);
+		if(method.equals("hello")){
+			ReplyHandlers.handleHelloReply(msg,this);
+		} else if(method.equals("authenticate")){
+			ReplyHandlers.handleAuthenticateReply(msg,this);
+		} else if(method.equals("getDiskSpace")){
+			ReplyHandlers.handleGetDiskSpaceReply(msg,this);
+		} else if(method.equals("getSysTime")){
+			ReplyHandlers.handleGetSysTimeReply(msg,this);
+		} else if(method.equals("enableAsyncMetadata")){
+			ReplyHandlers.handleEnableAsyncMetadataReply(msg,this);
+		} else if(method.equals("getEvent")){
+			ReplyHandlers.handleGetEventReply(msg,this);
+		} else if(method.equals("getEvents")){
+			ReplyHandlers.handleGetEventsReply(msg,this);
+		} else if(method.equals("epgQuery")){
+			ReplyHandlers.handleEpgQueryReply(msg,this);
+		} else if(method.equals("getEpgObject")){
+			ReplyHandlers.handleGetEpgObjectReply(msg,this);
+		} else if(method.equals("getTicket")){
+			ReplyHandlers.handleGetTicketReply(msg,this);
+		} else if(method.equals("subscribe")){
+			ReplyHandlers.handleSubscribeReply(msg,this);
+		} else if(method.equals("unsubscribe")){
+			ReplyHandlers.handleUnsubscribeReply(msg,this);
+		} else if(method.equals("subscriptionChangeWeight")){
+			ReplyHandlers.handleSubscriptionChangeWeightReply(msg,this);
+		} else{
+			
+		}
+				
+	}
+
+	
+
 	
 	public void run(){
 		try {
