@@ -14,7 +14,7 @@ public class MagicSequence {
 	final private List<Long> freeSequences = new ArrayList<Long>();
 	final private Map<Long, String> currentSequences = new HashMap<Long, String>();
 	
-	private int latest=0;
+	private long latest=0;
 	
 	public MagicSequence() {
 	}
@@ -24,7 +24,7 @@ public class MagicSequence {
 	 * @param method
 	 * @return
 	 */
-	public Long pop(String method) {
+	synchronized public Long pop(String method) {
 		final Long r;
 		if (freeSequences.size() > 0) {
 			r = freeSequences.get(0);
@@ -43,10 +43,24 @@ public class MagicSequence {
 	 * @param i
 	 * @return
 	 */
-	public String giveBack(Long i) {
+	synchronized public String giveBack(Long i) {
+		if (i.longValue() == latest) {
+			shrinkLatest();
+		}
+		
 		freeSequences.add(i);
 		String s = currentSequences.get(i);
 		currentSequences.remove(i);
+		if (currentSequences.size() == 0) {
+			latest = 0;
+		}
 		return s;
+	}
+	
+	private void shrinkLatest() {
+		if (! currentSequences.containsKey(latest)) {
+			latest--;
+			shrinkLatest();
+		}
 	}
 }
