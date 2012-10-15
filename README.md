@@ -6,6 +6,8 @@ __WORK IN PROGRESS__
 
 A proxy for HTSP
 
+Will probably never implement epg functionality
+
 
 Installation
 ------------
