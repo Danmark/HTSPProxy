@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<server>
+	<name>local</name>
+	<ip>localhost</ip>
+	<port>9982</port>
+	<username>test</username>
+	<password>test</password>
+</server>
