@@ -64,9 +64,16 @@ public class HTSPClient extends Thread {
 	}
 	
 	public void enableAsyncMetadata() throws IOException{
-		String method="enableAsyncMetadata";
-		HTSMsg enableAsyncMetadata = new HTSMsg(method);
-		send(enableAsyncMetadata);
+		HTSMsg msg = new HTSMsg("enableAsyncMetadata");
+		send(msg);
+	}
+	
+	public void subscribe(long channelId) throws IOException{
+		HTSMsg msg = new HTSMsg("subscribe");
+		msg.put("channelId", channelId);
+		msg.put("subscriptionId",(long) 1);
+		//TODO Handle the subscriptionid
+		send(msg);
 	}
 	
 	private void send(HTSMsg msg) throws IOException{
@@ -75,6 +82,7 @@ public class HTSPClient extends Thread {
 		os.write(bytes);
 		os.flush();
 	}
+
 	
 	public HTSMsg rcv() throws IOException{
 		byte[] lenBytes = new byte[4];
@@ -89,7 +97,7 @@ public class HTSPClient extends Thread {
 		byte[] msg = new byte[(int)len];
 		while (is.read(msg,0,(int)len)!=len){
 			try {
-				wait(100);
+				Thread.sleep(100);
 				//TODO check wait time
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

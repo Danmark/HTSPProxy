@@ -70,6 +70,7 @@ public class HTSMsg {
 			String name = entry.getKey();
 			Object value = entry.getValue();
 			int type = getType(value);
+			System.out.println(type);
 			final byte[] data;
 			switch (type) {
 			case HMF_MAP:
@@ -78,14 +79,23 @@ public class HTSMsg {
 				break;
 
 			case HMF_S64:
-				int intData=((Number)value).intValue();
-				data = new byte[]
+				long intData=((Number)value).longValue();
+				byte[] tmpData = new byte[]
 						{ 
-						(byte)(intData >> 24), 
+						(byte)(intData >> 56),
+						(byte)(intData >> 48 & 0xff),
+						(byte)(intData >> 40 & 0xff),
+						(byte)(intData >> 32 & 0xff),
+						(byte)(intData >> 24 & 0xff),
 						(byte)(intData >> 16 & 0xff), 
 						(byte)(intData >> 8 & 0xff), 
 						(byte)(intData & 0xff) 
 						};
+				int i=0;
+				while(tmpData[i]==0){
+					i++;
+				}
+				data = Arrays.copyOfRange(tmpData, i, 8);
 				break;
 
 			case HMF_STR:
@@ -140,12 +150,23 @@ public class HTSMsg {
 			long dataLength=0;
 			String name="";
 			Object data="";
-			int type = (int)msg[(int)i];
+			int type = (int)msg[i];
 			i++;
-			nameLength = msg[(int)i];
+			nameLength = ByteBuffer.wrap(new byte[]{0,msg[i]}).getShort();
 			i++;
-			ByteBuffer buff = ByteBuffer.wrap(Arrays.copyOfRange(msg, i, i+4));
-			dataLength = buff.getInt();
+			
+			byte[] zeros = new byte[8];
+			byte[] dataLengthBytes = Arrays.copyOfRange(msg, i, i+4);
+			for (int k=0;k<4;k++){
+				zeros[k+4]=dataLengthBytes[k];
+			}
+			ByteBuffer buff = ByteBuffer.wrap(zeros);
+
+			dataLength = buff.getLong();
+			System.out.println("dataLength: " + dataLength);
+			System.out.println("nameLength: " + nameLength);
+			System.out.println("i: " + i);
+			System.out.println("msg.length: " + msg.length);
 			i+=4;
 			try {
 				name = new String(Arrays.copyOfRange(msg, i, i+nameLength), "UTF-8");
@@ -153,6 +174,8 @@ public class HTSMsg {
 				name = "";
 				e.printStackTrace();
 			}
+			System.out.println("name: " + name);
+
 			i+=nameLength;
 			byte[] dataBytes = Arrays.copyOfRange(msg, i, (int)(i + dataLength));
 			switch (type) {
