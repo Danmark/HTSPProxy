@@ -16,6 +16,8 @@ public class HTSPClient extends Thread {
 	BufferedInputStream is;
 	ClientTVChannels chan;
 	ServerInfo serverInfo;
+	ClientEvents events;
+	ClientSubscriptions subscriptions;
 	
 	private int clientid;
 	
@@ -35,6 +37,8 @@ public class HTSPClient extends Thread {
 		this.serverInfo = serverInfo;
 		this.chan = new ClientTVChannels();
 		this.tags = new ClientTags();
+		this.events = new ClientEvents();
+		this.subscriptions = new ClientSubscriptions();
 		this.sequence = new MagicSequence();
 		try {
 			System.out.println("Connecting to: " + serverInfo.getIP() + ":" + serverInfo.getPort());
@@ -56,29 +60,31 @@ public class HTSPClient extends Thread {
 	
 	public void hello() throws IOException{
 		String method="hello";
-		Map<String, Object> map=new HashMap<String,Object>();
-		map.put("htspversion", new Long(6));
-		map.put("clientname", "HTSPProxy");
-		map.put("clientversion", "alpha");
-		map.put("seq", sequence.pop(method));
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("htspversion", new Long(6));
+		msg.put("clientname", "HTSPProxy");
+		msg.put("clientversion", "alpha");
+		msg.put("seq", sequence.pop(method));
 		if (serverInfo.needAuth()) {
-			map.put("username", serverInfo.getUsername());
+			msg.put("username", serverInfo.getUsername());
 		}
-		HTSMsg hello = new HTSMsg(method, map);
-		send(hello);
+		send(msg);
 	}
 	
 	public void authenticate() throws IOException {
-		HTSMsg msg = new HTSMsg("authenticate");
+		String method= "authenticate";
+		HTSMsg msg = new HTSMsg(method);
 		msg.put("username", serverInfo.getUsername());
 		msg.put("digest", serverInfo.getDigest());
+		msg.put("seq", sequence.pop(method));
 		send(msg);
 	}
 	
 	public void enableAsyncMetadata() throws IOException{
 		String method="enableAsyncMetadata";
-		HTSMsg enableAsyncMetadata = new HTSMsg(method);
-		send(enableAsyncMetadata);
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
 	}
 	
 	private void send(HTSMsg msg) throws IOException{
@@ -115,7 +121,7 @@ public class HTSPClient extends Thread {
 		return htsMsg; 
 	}
 	
-	public void handleReply(HTSMsg reply){
+	private void handleReply(HTSMsg reply){
 		if (reply.get("seq") != null) {
 			Long seq = (Long) reply.get("seq");
 			System.out.println("Got seq: " + seq + ", sender-method=" + sequence.giveBack(seq));
@@ -160,6 +166,26 @@ public class HTSPClient extends Thread {
 			tags.update(reply);
 		} else if (method.equals("tagDelete")) {
 			tags.remove(reply);
+		} else if(method.equals("eventAdd")){
+			events.add(reply);
+		} else if(method.equals("eventUpdate")){
+			events.update(reply);
+		} else if(method.equals("eventDeleted")){
+			events.remove(reply);
+		} else if(method.equals("initialSyncCompleted")){
+			//TODO do something maybe.
+		} else if(method.equals("subscriptionStart")){
+			subscriptions.start(reply);
+		} else if(method.equals("subscriptionStop")){
+			subscriptions.stop(reply);
+		} else if(method.equals("subscriptionStatus")){
+			subscriptions.status(reply);
+		} else if(method.equals("queueStatus")){
+			subscriptions.queueStatus(reply);
+		} else if(method.equals("signalStatus")){
+			subscriptions.signalStatus(reply);
+		} else if(method.equals("muxpkt")){
+			subscriptions.muxpkt(reply);
 		} else{
 			//TODO something is wrong. Do something about it.
 		}
