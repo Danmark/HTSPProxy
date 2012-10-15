@@ -142,7 +142,6 @@ public class HTSPClient extends Thread {
 			}		
 		} else if(method.equals("channelAdd")){
 			chan.add(reply);
-			
 		} else if(method.equals("channelUpdate")){
 			chan.update(reply);
 		} else if (method.equals("channelDelete")){
