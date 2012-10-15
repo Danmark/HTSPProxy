@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import main.ServerInfo;
+import main.ServerInfo.Builder;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,27 +21,47 @@ import org.w3c.dom.Document;
 public class Config {
 	private Document doc;
 	
-	public Config() throws ParserConfigurationException, SAXException, IOException{
+	public Config() {
 		File file = new File("config");
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		doc = dBuilder.parse(file);
+		DocumentBuilder dBuilder;
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+			doc = dBuilder.parse(file);
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		doc.getDocumentElement().normalize();
 	}
 	
 	public List<ServerInfo> getServers(){
 		List<ServerInfo> list = new ArrayList<ServerInfo>();
 		NodeList nodeList = doc.getElementsByTagName("server");
+		System.out.println(nodeList.getLength());
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node n = nodeList.item(i);
+			System.out.println(i+" "+n);
+			
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element e = (Element) n;
-				ServerInfo serverInfo = new ServerInfo(e.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue());
-				//TODO fetch ip and port and so on, check if they exist etc.
+				Builder serverInfoBuilder = new ServerInfo.Builder(e.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue());
+				serverInfoBuilder.ip(e.getElementsByTagName("ip").item(0).getChildNodes().item(0).getNodeValue());
+				serverInfoBuilder.port(Integer.parseInt(e.getElementsByTagName("port").item(0).getChildNodes().item(0).getNodeValue()));
+				serverInfoBuilder.username(e.getElementsByTagName("username").item(0).getChildNodes().item(0).getNodeValue());
+				serverInfoBuilder.password(e.getElementsByTagName("password").item(0).getChildNodes().item(0).getNodeValue());
+				//TODO check if they exist etc.
 				
+				ServerInfo serverInfo = serverInfoBuilder.build();
 				list.add(serverInfo);
 			}			
 		}
-		return null;
+		return list;
 	}
 }
