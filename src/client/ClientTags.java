@@ -8,12 +8,12 @@ import shared.HTSMsg;
 
 public class ClientTags {
 	/**
-	 * requried
+	 * required
 	 */
 	public final static String TAGID = "tagId";
 	
 	/**
-	 * requried
+	 * required
 	 */
 	public final static String TAGNAME = "tagName";
 	
@@ -69,6 +69,6 @@ public class ClientTags {
 	}
 	
 	public void remove(HTSMsg msg){
-		tags.remove(((Number)msg.get(TAGID)).intValue());
+		tags.remove(((Number)msg.get(TAGID)).longValue());
 	}
 }
