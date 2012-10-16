@@ -10,11 +10,13 @@ import java.nio.ByteBuffer;
  */
 public class HTSMsg {
 	private Map<String,Object> map;
+	public static final int HMF_NONE = 0;
 	public static final int HMF_MAP  = 1;
 	public static final int HMF_S64  = 2;
 	public static final int HMF_STR  = 3;
 	public static final int HMF_BIN  = 4;
 	public static final int HMF_LIST = 5;
+	public static final int HMF_DBL = 6;
 	private Integer noName;
 
 	public HTSMsg(){
@@ -78,14 +80,23 @@ public class HTSMsg {
 				break;
 
 			case HMF_S64:
-				int intData=((Number)value).intValue();
-				data = new byte[]
+				long longData=((Number)value).longValue();
+				byte[] tmpData = new byte[]
 						{ 
-						(byte)(intData >> 24), 
-						(byte)(intData >> 16 & 0xff), 
-						(byte)(intData >> 8 & 0xff), 
-						(byte)(intData & 0xff) 
+						(byte)(longData >> 56), 
+						(byte)(longData >> 48 & 0xff),
+						(byte)(longData >> 40 & 0xff),
+						(byte)(longData >> 32 & 0xff),
+						(byte)(longData >> 24 & 0xff),
+						(byte)(longData >> 16 & 0xff), 
+						(byte)(longData >> 8 & 0xff), 
+						(byte)(longData & 0xff) 
 						};
+				int i=0;
+				while(tmpData[i]==0 && i < 7){
+					i++;
+				}
+				data = Arrays.copyOfRange(tmpData, i, 8);
 				break;
 
 			case HMF_STR:
@@ -136,16 +147,19 @@ public class HTSMsg {
 		int i = 0;
 
 		while(i<msg.length){
+			System.out.println("msg.length: " + msg.length);
 			short nameLength=0;
 			long dataLength=0;
 			String name="";
 			Object data="";
 			int type = (int)msg[(int)i];
+			System.out.println("type: " + type);
 			i++;
-			nameLength = msg[(int)i];
+			nameLength = (short) getS64(Arrays.copyOfRange(msg, i, i+1),1) ;
+			System.out.println("nameLength: " + nameLength);
 			i++;
-			ByteBuffer buff = ByteBuffer.wrap(Arrays.copyOfRange(msg, i, i+4));
-			dataLength = buff.getInt();
+			dataLength = getS64(Arrays.copyOfRange(msg, i, i+4),4);
+			System.out.println("dataLength: " + dataLength);
 			i+=4;
 			try {
 				name = new String(Arrays.copyOfRange(msg, i, i+nameLength), "UTF-8");
@@ -154,8 +168,15 @@ public class HTSMsg {
 				e.printStackTrace();
 			}
 			i+=nameLength;
+			if(dataLength + i > msg.length || i +dataLength<0){
+				System.out.println("crazy message!!");
+				return;
+			}
 			byte[] dataBytes = Arrays.copyOfRange(msg, i, (int)(i + dataLength));
 			switch (type) {
+			case HMF_NONE:
+				data = getBytes(dataBytes,dataLength);
+				break;
 			case HMF_MAP:
 				data = getMap(dataBytes,dataLength);
 				break;
@@ -176,7 +197,8 @@ public class HTSMsg {
 				data = getList(dataBytes,dataLength);
 				break;
 			default:
-				throw new RuntimeException("Unsupported type: " + type);
+				System.out.print("Unsupported data type: " + type);
+				return;
 			}
 			
 			if(map.containsKey(name)){
@@ -215,7 +237,7 @@ public class HTSMsg {
 		}		
 	}
 
-	private long getS64(byte[] dataBytes, long dataLength) {
+	public static long getS64(byte[] dataBytes, long dataLength) {
 		byte[] s64 = new byte[8];
 		for (int k = 8-(int)dataLength ; k<8 ;k++)
 			s64[k] = dataBytes[k-8+(int)dataLength];

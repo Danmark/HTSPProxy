@@ -51,7 +51,7 @@ public class HTSPClient extends Thread {
 	}
 	
 	public void hello() throws IOException{
-		String method="hello";
+		String method = "hello";
 		HTSMsg msg = new HTSMsg(method);
 		msg.put("htspversion", new Long(6));
 		msg.put("clientname", "HTSPProxy");
@@ -64,10 +64,24 @@ public class HTSPClient extends Thread {
 	}
 	
 	public void authenticate() throws IOException {
-		String method= "authenticate";
+		String method = "authenticate";
 		HTSMsg msg = new HTSMsg(method);
 		msg.put("username", serverInfo.getUsername());
 		msg.put("digest", serverInfo.getDigest());
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void getDiskSpace() throws IOException {
+		String method = "getDiskSpace";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void getSysTime() throws IOException {
+		String method = "getSysTime";
+		HTSMsg msg = new HTSMsg(method);
 		msg.put("seq", sequence.pop(method));
 		send(msg);
 	}
@@ -78,6 +92,86 @@ public class HTSPClient extends Thread {
 		msg.put("seq", sequence.pop(method));
 		send(msg);
 	}
+	
+	public void getEvent(long eventId, String language) throws IOException{
+		String method="getEvent";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("eventId",eventId);
+		msg.put("language", language);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void getEvents(long eventId, long channelId, long numFollowing, long maxTime, String language) throws IOException{
+		String method="getEvent";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("eventId",eventId);
+		msg.put("channelId",channelId);
+		msg.put("numFollowing",numFollowing);
+		msg.put("maxTime",maxTime);
+		msg.put("language", language);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void epgQuery(String query, long channelId, long tagId, long contentType, String language, long full) throws IOException{
+		String method="epgQuery";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("query", query);
+		msg.put("channelId", channelId);
+		msg.put("tagId", tagId);
+		msg.put("contentType", contentType);
+		msg.put("language", language);
+		msg.put("full", full);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void getEpgObject(long id, long type) throws IOException{
+		String method="getEpgObject";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("id", id);
+		msg.put("type", type);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void getTicket(long channelId, long dvrId) throws IOException{
+		String method="getTicket";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("channelId", channelId);
+		msg.put("dvrId", dvrId);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void subscribe(long channelId, long subscriptionId, long weight) throws IOException{
+		String method="subscribe";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("channelId", channelId);
+		msg.put("subscriptionId", subscriptionId);
+		msg.put("weight", weight);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void unsubscribe(long subscriptionId) throws IOException{
+		String method="unsubscribe";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("subscriptionId", subscriptionId);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
+	public void subscriptionChangeWeight(long subscriptionId, long weight) throws IOException{
+		String method="subscriptionChangeWeight";
+		HTSMsg msg = new HTSMsg(method);
+		msg.put("subscriptionId", subscriptionId);
+		msg.put("weight", weight);
+		msg.put("seq", sequence.pop(method));
+		send(msg);
+	}
+	
 	
 	private void send(HTSMsg msg) throws IOException{
 		byte[] bytes = msg.serialize();
@@ -94,12 +188,11 @@ public class HTSPClient extends Thread {
 			} catch (InterruptedException e) {
 			}
 		}
-		
-		long len = ByteBuffer.wrap(lenBytes,0,4).getInt();
+		long len = HTSMsg.getS64(lenBytes, 4);
 		byte[] msg = new byte[(int)len];
 		while (is.read(msg,0,(int)len)!=len){
 			try {
-				wait(100);
+				Thread.sleep(100);
 				//TODO check wait time
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -199,7 +292,7 @@ public class HTSPClient extends Thread {
 			ReplyHandlers.handleSubscriptionChangeWeightReply(msg,this);
 		} else{
 			System.out.println("unimplemented reply: " + method);
-		}	
+		}
 	}
 
 	public void run(){

@@ -29,7 +29,8 @@ public class HTSPProxy {
 			client.hello();
 			client.enableAsyncMetadata();
 		}
-		
+		Thread.sleep(1000);
+		clients.get(0).subscribe(41, 1, 0);
 		
 		/**
 		 * HTSPServer server = new HTSPServer(clients);

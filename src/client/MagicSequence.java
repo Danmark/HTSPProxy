@@ -57,6 +57,10 @@ public class MagicSequence {
 		return s;
 	}
 	
+	synchronized public String peek(Long i){
+		return currentSequences.get(i);
+	}
+	
 	private void shrinkLatest() {
 		if (! currentSequences.containsKey(latest)) {
 			latest--;
