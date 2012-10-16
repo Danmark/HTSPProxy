@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import server.HTSPServer;
 import shared.Config;
 import client.HTSPClient;
 import client.ServerInfo;
@@ -30,12 +31,11 @@ public class HTSPProxy {
 			client.hello();
 			client.enableAsyncMetadata();
 		}
-		Thread.sleep(1000);
-		clients.get(0).subscribe(41, 1, 0);
 		
-		/**
-		 * HTSPServer server = new HTSPServer(clients);
-		 * server.start();
-		 */
+		
+		
+		HTSPServer server = new HTSPServer(9982);
+		server.start();
+
 	}
 }

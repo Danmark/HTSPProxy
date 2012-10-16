@@ -222,8 +222,6 @@ public class HTSPClient extends Thread {
 		} else{
 			handleClientToServerMethod(msg, method);
 		} 
-			
-		
 	}
 	
 	private void handleClientToServerMethod(HTSMsg msg, String method) {
