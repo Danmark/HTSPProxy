@@ -1,4 +1,4 @@
-package main;
+package client;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;

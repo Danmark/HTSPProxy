@@ -5,6 +5,7 @@ import java.util.List;
 
 import shared.Config;
 import client.HTSPClient;
+import client.ServerInfo;
 
 
 public class HTSPProxy {
