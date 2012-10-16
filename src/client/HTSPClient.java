@@ -1,12 +1,12 @@
 package client;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.nio.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import main.ServerInfo;
-
 import shared.HTSMsg;
 
 
@@ -20,7 +20,7 @@ public class HTSPClient extends Thread {
 	ClientSubscriptions subscriptions;
 	
 	private int clientid;
-	
+
 	private ClientTags tags;
 		
 	private MagicSequence sequence;
@@ -50,6 +50,10 @@ public class HTSPClient extends Thread {
 		this.clientid = clientid;
 	}
 	
+	public int getClientid() {
+		return clientid;
+	}
+		
 	public void hello() throws IOException{
 		String method = "hello";
 		HTSMsg msg = new HTSMsg(method);
