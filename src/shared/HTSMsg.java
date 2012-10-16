@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.nio.ByteBuffer;
-
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * A HTSMsg
@@ -147,19 +147,15 @@ public class HTSMsg {
 		int i = 0;
 
 		while(i<msg.length){
-			System.out.println("msg.length: " + msg.length);
 			short nameLength=0;
 			long dataLength=0;
 			String name="";
 			Object data="";
 			int type = (int)msg[(int)i];
-			System.out.println("type: " + type);
 			i++;
 			nameLength = (short) getS64(Arrays.copyOfRange(msg, i, i+1),1) ;
-			System.out.println("nameLength: " + nameLength);
 			i++;
 			dataLength = getS64(Arrays.copyOfRange(msg, i, i+4),4);
-			System.out.println("dataLength: " + dataLength);
 			i+=4;
 			try {
 				name = new String(Arrays.copyOfRange(msg, i, i+nameLength), "UTF-8");
@@ -169,7 +165,7 @@ public class HTSMsg {
 			}
 			i+=nameLength;
 			if(dataLength + i > msg.length || i +dataLength<0){
-				System.out.println("crazy message!!");
+				System.out.println("crazy message!! \n" + DatatypeConverter.printHexBinary(msg));
 				return;
 			}
 			byte[] dataBytes = Arrays.copyOfRange(msg, i, (int)(i + dataLength));

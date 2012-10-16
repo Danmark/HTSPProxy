@@ -182,15 +182,16 @@ public class HTSPClient extends Thread {
 	
 	public HTSMsg rcv() throws IOException{
 		byte[] lenBytes = new byte[4];
-		while (is.read(lenBytes, 0, 4) != 4) {
+		while (is.available() < 4) {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
 			}
 		}
+		is.read(lenBytes, 0, 4);
 		long len = HTSMsg.getS64(lenBytes, 4);
 		byte[] msg = new byte[(int)len];
-		while (is.read(msg,0,(int)len)!=len){
+		while (is.available() < len){
 			try {
 				Thread.sleep(100);
 				//TODO check wait time
@@ -199,6 +200,7 @@ public class HTSPClient extends Thread {
 				e.printStackTrace();
 			}
 		}
+		is.read(msg, 0, (int) len);
 		HTSMsg htsMsg = new HTSMsg(msg);
 		System.out.println("Recived " + htsMsg);
 		handleHTSMsg(htsMsg);
