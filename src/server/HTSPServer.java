@@ -149,9 +149,7 @@ public class HTSPServer extends Thread{
 	public void run(){
 		while(true){
 			try {
-				System.out.println("trying to start server, listening on port " + serverSocket.getLocalPort());
 				new HTSPServerConnection(serverSocket.accept(), this).start();
-				System.out.println("server started, listening on port " + serverSocket.getLocalPort());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
