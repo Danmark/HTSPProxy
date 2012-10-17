@@ -7,7 +7,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
+import client.HTSPClient;
+
 import shared.HTSMsg;
+import shared.Events;
+import shared.Subscriptions;
+import shared.TVChannels;
+import shared.Tags;
 
 
 
@@ -15,18 +21,20 @@ public class HTSPServer extends Thread{
 	
 	ServerSocket serverSocket;
 	List<Socket> sockets;
+	List<HTSPClient> clients;
 	BufferedOutputStream os;
 	BufferedInputStream is;
-	ServerTVChannels chan;
-	ServerTags tags;
-	ServerEvents events;
-	ServerSubscriptions subscriptions;
+	TVChannels chan;
+	Tags tags;
+	Events events;
+	Subscriptions subscriptions;
 	
-	public HTSPServer(int port){
-		this.chan = new ServerTVChannels();
-		this.tags = new ServerTags();
-		this.events = new ServerEvents();
-		this.subscriptions = new ServerSubscriptions();
+	public HTSPServer(int port, List<HTSPClient> clients){
+		this.clients = clients;
+		this.chan = new TVChannels();
+		this.tags = new Tags();
+		this.events = new Events(this);
+		this.subscriptions = new Subscriptions();
 		try {
 			serverSocket = new ServerSocket(port);
 		} catch (IOException e) {
@@ -40,18 +48,52 @@ public class HTSPServer extends Thread{
 		chan.add(channel);
 	}
 	
+	public void updateChannel(HTSMsg msg) {
+		chan.update(msg);
+	}
+	
+	public void deleteChannel(HTSMsg msg) {
+		chan.remove(msg);
+	}
 	public void addTag(HTSMsg tag) {
 		tags.add(tag);		
+	}
+	
+	public void updateTag(HTSMsg msg) {
+		tags.update(msg);
+	}
+	
+	public void removeTag(HTSMsg msg) {
+		tags.remove(msg);
+	}
+	
+	public void addEvent(HTSMsg msg) {
+		events.add(msg);
+	}
+	
+	public void updateEvent(HTSMsg msg) {
+		events.update(msg);
+	}
+	
+	public void removeEvent(HTSMsg msg) {
+		events.remove(msg);
+	}
+	
+	public HTSPClient getClient(int id){
+		return clients.get(id);
 	}
 	
 	public class HTSPServerConnection extends Thread{
 		private BufferedInputStream is;
 		private BufferedOutputStream os;
 		private HTSPServer server;
+		private Socket socket;
 		
 		public HTSPServerConnection(Socket socket, HTSPServer server) {
 			
 			this.server=server;
+			this.socket = socket;
+			
 			try {
 				this.is = new BufferedInputStream(socket.getInputStream());
 				this.os = new BufferedOutputStream(socket.getOutputStream());
@@ -115,7 +157,7 @@ public class HTSPServer extends Thread{
 			} else if(method.equals("enableAsyncMetadata")){
 				MethodHandlers.handleEnableAsyncMetadataMethod(msg,this,server);
 			} else if(method.equals("getEvent")){
-				MethodHandlers.handleGetEventMethod(msg,this);
+				MethodHandlers.handleGetEventMethod(msg,this,server);
 			} else if(method.equals("getEvents")){
 				MethodHandlers.handleGetEventsMethod(msg,this);
 			} else if(method.equals("epgQuery")){
@@ -136,14 +178,15 @@ public class HTSPServer extends Thread{
 		}
 		
 		public void run(){
-			try {
 				while(true){
-					rcv();
+					try {
+						rcv();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						break;
+					}
 				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
 	

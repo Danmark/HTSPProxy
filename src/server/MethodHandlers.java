@@ -91,18 +91,14 @@ public class MethodHandlers {
 				tag.put("members",l);
 			}
 			for (HTSMsg channel:server.chan.getAll()){
-				Object eventId = channel.remove("eventId");
-				Object nextEventId = channel.remove("nextEventId");
 				conn.send(channel);
-				channel.put("eventId",eventId);
-				channel.put("nextEventId",nextEventId);
 			}
 			for(HTSMsg tag:server.tags.getAll()){
 				tag.put("method", "tagUpdate");
 				conn.send(tag);
 				tag.put("method", "tagAdd");
 			}
-			//TODO send events (and dvr)
+			//TODO (send dvr)
 			conn.send(new HTSMsg("initialSyncCompleted"));
 			//TODO start the asyncMetadataThread. (and implement dito)
 		} else{
@@ -111,10 +107,12 @@ public class MethodHandlers {
 
 	}
 
-	public static void handleGetEventMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
-		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId","channelId","start","stop"});
+	public static void handleGetEventMethod(HTSMsg msg, HTSPServerConnection conn, HTSPServer server) throws IOException {
+		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId"});
 		if (msg.keySet().containsAll(requiredFields)){
-			HTSMsg reply = new HTSMsg();
+			HTSMsg reply = server.events.get((Long) msg.get("eventId"));
+			if(reply==null)
+				reply = new HTSMsg();
 			handleExtraFields(msg,reply);
 			//TODO
 			conn.send(reply);

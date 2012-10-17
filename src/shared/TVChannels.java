@@ -1,14 +1,13 @@
-package server;
+package shared;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
-import shared.HTSMsg;
 
 
 
-public class ServerTVChannels {
+public class TVChannels {
 	/**
 	 * required
 	 */
@@ -53,7 +52,7 @@ public class ServerTVChannels {
 
 	private HashMap<Long,HTSMsg> channels;
 	
-	public ServerTVChannels(){
+	public TVChannels(){
 		channels = new HashMap<Long,HTSMsg>();
 	}
 	

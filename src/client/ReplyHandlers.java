@@ -90,7 +90,7 @@ public class ReplyHandlers {
 	public static void handleGetEventReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId","channelId","start","stop"});
 		if (msg.keySet().containsAll(requiredFields)){
-			//TODO
+			client.events.add(msg);
 		} else{
 			System.out.println("Faulty reply");
 		}

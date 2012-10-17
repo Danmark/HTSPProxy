@@ -234,21 +234,28 @@ public class HTSPClient extends Thread {
 			server.addChannel(msg);
 		} else if(method.equals("channelUpdate")){
 			chan.update(msg);
+			server.updateChannel(msg);
 		} else if (method.equals("channelDelete")){
 			chan.remove(msg);
+			server.deleteChannel(msg);
 		} else if (method.equals("tagAdd")) {
 			tags.add(msg);
 			server.addTag(msg);
 		} else if (method.equals("tagUpdate")) {
 			tags.update(msg);
+			server.updateTag(msg);
 		} else if (method.equals("tagDelete")) {
 			tags.remove(msg);
+			server.removeTag(msg);
 		} else if(method.equals("eventAdd")){
 			events.add(msg);
+			server.addEvent(msg);
 		} else if(method.equals("eventUpdate")){
 			events.update(msg);
+			server.updateEvent(msg);
 		} else if(method.equals("eventDeleted")){
 			events.remove(msg);
+			server.removeEvent(msg);
 		} else if(method.equals("initialSyncCompleted")){
 			//TODO do something maybe.
 		} else if(method.equals("subscriptionStart")){

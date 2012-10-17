@@ -20,11 +20,11 @@ public class HTSPProxy {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Config conf = new Config();
 		servers = conf.getServers();
+		List<HTSPClient> clients = new ArrayList<HTSPClient>();
 		
-		HTSPServer server = new HTSPServer(9982);
+		HTSPServer server = new HTSPServer(9982, clients);
 		server.start();
 		
-		List<HTSPClient> clients = new ArrayList<HTSPClient>();
 		int clientid = 0;
 		for (ServerInfo serverInfo : servers) {
 			HTSPClient client = new HTSPClient(serverInfo, server);

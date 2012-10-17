@@ -1,13 +1,12 @@
-package server;
+package shared;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import shared.HTSMsg;
 
-public class ServerTags {
+public class Tags {
 	/**
 	 * required
 	 */
@@ -37,7 +36,7 @@ public class ServerTags {
 	
 	private Map<Long, HTSMsg> tags;
 	
-	public ServerTags() {
+	public Tags() {
 		this.tags = new HashMap<Long, HTSMsg>();
 	}
 	

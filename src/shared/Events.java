@@ -1,12 +1,13 @@
-package client;
+package shared;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import shared.HTSMsg;
+import server.HTSPServer;
 
-public class ClientEvents {
+public class Events {
 	/**
 	 * required
 	 */
@@ -111,17 +112,16 @@ public class ClientEvents {
 	public static final String[] HTSMsgFields = {EVENTID,CHANNELID,START,STOP,TITLE,SUMMARY,DESCRIPTION,SERIERLINKID,EPISODEID,SEASONID,BRANDID,CONTENTTYPE,AGERATING,STARRATING,FIRSTAIRED,SEASONNUMBER,SEASONCOUNT,EPISODENUMBER,EPISODECOUNT,PARTNUMBER,PARTCOUNT,EPISODEONSCREEN,IMAGE,DVRID,NEXTEVENTID};
 	
 	private Map<Long, HTSMsg> events;
+	private HTSPServer server;
 	
-	public ClientEvents(){
+	public Events(HTSPServer server){
+		this.server=server;
 		events = new HashMap<Long,HTSMsg>();
 	}
 	
-	public synchronized void add(HTSMsg msg) {
-		System.out.println("Adding event to Client");
+	public void add(HTSMsg msg) {
+		System.out.println("adding event to server");
 		events.put(((Number)msg.get(EVENTID)).longValue(), msg);
-		System.out.println("Event added to Client");
-		notifyAll();
-
 	}
 
 	public void update(HTSMsg msg) {
@@ -142,6 +142,27 @@ public class ClientEvents {
 
 	public void remove(HTSMsg msg) {
 		events.remove(((Number)msg.get(EVENTID)).longValue());		
+	}
+	
+	public synchronized HTSMsg get(long eventId){
+		try {
+			server.getClient(0).getEvent(eventId, "sv");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		HTSMsg ret = events.get(eventId);
+		//TODO handle multiple servers
+		while(ret==null){
+			try {
+				wait(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ret = events.get(eventId);
+		}
+		return events.get(eventId);
 	}
 
 }
