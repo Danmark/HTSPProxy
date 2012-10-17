@@ -19,6 +19,7 @@ import javax.xml.bind.DatatypeConverter;
  */
 public class HTSMsg {
 	private Map<String,Object> map;
+	private List<Object> list;
 	public static final int HMF_NONE = 0;
 	public static final int HMF_MAP  = 1;
 	public static final int HMF_S64  = 2;
@@ -26,13 +27,12 @@ public class HTSMsg {
 	public static final int HMF_BIN  = 4;
 	public static final int HMF_LIST = 5;
 	public static final int HMF_DBL = 6;
-	private Integer noName;
 	private byte[] htsMsg;
 	private boolean isSerialized;
 
 	public HTSMsg(){
 		this.map = new HashMap<String, Object>();
-		noName = new Integer(0);
+		this.list = new LinkedList<Object>();
 		isSerialized=false;
 	}
 	
@@ -55,7 +55,7 @@ public class HTSMsg {
 		this();
 		htsMsg=msg;
 		isSerialized=true;
-		deserialize(msg);
+		deserialize();
 	}
 
 
@@ -88,68 +88,10 @@ public class HTSMsg {
 		ByteArrayOutputStream msg = new ByteArrayOutputStream();
 		Set<Entry<String,Object>> set = map.entrySet();
 		for (Entry<String, Object> entry : set){
-			String name = entry.getKey();
-			Object value = entry.getValue();
-			int type = getType(value);
-			final byte[] data;
-			switch (type) {
-			case HMF_MAP:
-				// TODO: get the data from the map
-				data = new byte[0];
-				break;
-
-			case HMF_S64:
-				long longData=((Number)value).longValue();
-				byte[] tmpData = new byte[]
-						{ 
-						(byte)(longData >> 56), 
-						(byte)(longData >> 48 & 0xff),
-						(byte)(longData >> 40 & 0xff),
-						(byte)(longData >> 32 & 0xff),
-						(byte)(longData >> 24 & 0xff),
-						(byte)(longData >> 16 & 0xff), 
-						(byte)(longData >> 8 & 0xff), 
-						(byte)(longData & 0xff) 
-						};
-				int i=0;
-				while(tmpData[i]==0 && i < 7){
-					i++;
-				}
-				data = Arrays.copyOfRange(tmpData, i, 8);
-				break;
-
-			case HMF_STR:
-				data=((String)value).getBytes();
-				break;
-
-			case HMF_BIN:
-				data=(byte[])value;
-				break;
-
-			case HMF_LIST:
-				HTSMsg dataMsg = new HTSMsg();
-				for(Object o : (List) value){
-					dataMsg.put("",o);
-				}
-				data = dataMsg.serialize();
-				//TODO make sure this works. Probably needs to handle the names.
-				break;
-
-			default:
-				throw new RuntimeException("Unsupported type: " + type);
-			}
-
-			//TYPE
-			msg.write(type & 0xff);
-			//NAMELENGTH
-			msg.write((name.getBytes("UTF-8").length));
-			//DATALENGTH
-			for(int i=3;i>=0;i--)
-				msg.write((byte)((data.length >>> i*8) & 0xff));
-			//NAME
-			msg.write(name.getBytes("UTF-8"));
-			//DATA
-			msg.write(data);
+			createHTSMsgField(entry.getKey(), entry.getValue(), msg);
+		}
+		for (Object o : list){
+			createHTSMsgField("", o, msg);
 		}
 		length = msg.toByteArray().length;
 		byte[] ret = new byte[length+4];
@@ -165,33 +107,94 @@ public class HTSMsg {
 		isSerialized=true;
 		return ret;
 	}
+	
+	private void createHTSMsgField(String name, Object value, ByteArrayOutputStream msg) throws IOException{
+		int type = getType(value);
+		final byte[] data;
+		switch (type) {
+		case HMF_MAP:
+			// TODO: get the data from the map
+			data = new byte[0];
+			break;
 
-	public void deserialize(byte[] msg){
+		case HMF_S64:
+			long longData=((Number)value).longValue();
+			byte[] tmpData = new byte[]
+					{ 
+					(byte)(longData >> 56), 
+					(byte)(longData >> 48 & 0xff),
+					(byte)(longData >> 40 & 0xff),
+					(byte)(longData >> 32 & 0xff),
+					(byte)(longData >> 24 & 0xff),
+					(byte)(longData >> 16 & 0xff), 
+					(byte)(longData >> 8 & 0xff), 
+					(byte)(longData & 0xff) 
+					};
+			int i=0;
+			while(tmpData[i]==0 && i < 7){
+				i++;
+			}
+			data = Arrays.copyOfRange(tmpData, i, 8);
+			break;
+
+		case HMF_STR:
+			data=((String)value).getBytes();
+			break;
+
+		case HMF_BIN:
+			data=(byte[])value;
+			break;
+
+		case HMF_LIST:
+			HTSMsg dataMsg = new HTSMsg();
+			for(Object o : (List<Object>) value){
+				dataMsg.put("",o);
+			}
+			data = dataMsg.serialize();
+			break;
+		default:
+			throw new RuntimeException("Unsupported type: " + type);
+		}
+
+		//TYPE
+		msg.write(type & 0xff);
+		//NAMELENGTH
+		msg.write((name.getBytes("UTF-8").length));
+		//DATALENGTH
+		for(int i=3;i>=0;i--)
+			msg.write((byte)((data.length >>> i*8) & 0xff));
+		//NAME
+		msg.write(name.getBytes("UTF-8"));
+		//DATA
+		msg.write(data);
+	}
+
+	public void deserialize(){
 		int i = 0;
 
-		while(i<msg.length){
+		while(i<htsMsg.length){
 			short nameLength=0;
 			long dataLength=0;
 			String name="";
 			Object data="";
-			int type = (int)msg[(int)i];
+			int type = (int)htsMsg[(int)i];
 			i++;
-			nameLength = (short) getS64(Arrays.copyOfRange(msg, i, i+1),1) ;
+			nameLength = (short) getS64(Arrays.copyOfRange(htsMsg, i, i+1),1) ;
 			i++;
-			dataLength = getS64(Arrays.copyOfRange(msg, i, i+4),4);
+			dataLength = getS64(Arrays.copyOfRange(htsMsg, i, i+4),4);
 			i+=4;
 			try {
-				name = new String(Arrays.copyOfRange(msg, i, i+nameLength), "UTF-8");
+				name = new String(Arrays.copyOfRange(htsMsg, i, i+nameLength), "UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				name = "";
 				e.printStackTrace();
 			}
 			i+=nameLength;
-			if(dataLength + i > msg.length || i +dataLength<0){
-				System.out.println("crazy message!! \n" + DatatypeConverter.printHexBinary(msg));
+			if(dataLength + i > htsMsg.length || i +dataLength<0){
+				System.out.println("crazy message!! \n" + DatatypeConverter.printHexBinary(htsMsg));
 				return;
 			}
-			byte[] dataBytes = Arrays.copyOfRange(msg, i, (int)(i + dataLength));
+			byte[] dataBytes = Arrays.copyOfRange(htsMsg, i, (int)(i + dataLength));
 			switch (type) {
 			case HMF_NONE:
 				data = getBytes(dataBytes,dataLength);
@@ -220,9 +223,11 @@ public class HTSMsg {
 				return;
 			}
 			
-			if(map.containsKey(name)){
-				name = noName.toString();
-				noName++;
+			if(name.equals("")){
+				list.add(data);
+			}
+			else{
+				map.put(name, data);				
 			}
 			if (data.equals(null)) {
 				System.out.println("datan Šr null. " + name);				
@@ -231,15 +236,13 @@ public class HTSMsg {
 				System.out.println(data);
 			}
 			
-			map.put(name, data);
 			i+=dataLength;			
 		}
 	}
 
 	private List<Object> getList(byte[] dataBytes, long dataLength) {
 		HTSMsg msg = new HTSMsg(dataBytes);
-		List<Object> data= new ArrayList<Object>(msg.map.values());
-		return data;
+		return msg.list;
 	}
 
 	private Object getBytes(byte[] dataBytes, long dataLength) {
@@ -276,7 +279,12 @@ public class HTSMsg {
 	
 	public Object put(String key, Object value){
 		isSerialized=false;
-		Object ret = map.put(key, value);
+		Object ret = value;
+		if(key.equals("")){
+			list.add(value);
+		} else {			
+			ret = map.put(key, value);
+		}
 		return ret;
 	}
 	
