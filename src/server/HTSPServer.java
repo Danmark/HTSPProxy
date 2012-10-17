@@ -33,25 +33,24 @@ public class HTSPServer extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Server constructed");
 	}
 	
-	public void run(){
-		try {
-			new HTSPServerClient(serverSocket.accept(), this).start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void addChannel(HTSMsg channel){
+		chan.add(channel);
 	}
 	
-	private class HTSPServerClient extends Thread{
-		private Socket socket;
+	public void addTag(HTSMsg tag) {
+		tags.add(tag);		
+	}
+	
+	public class HTSPServerConnection extends Thread{
 		private BufferedInputStream is;
 		private BufferedOutputStream os;
 		private HTSPServer server;
 		
-		public HTSPServerClient(Socket socket, HTSPServer server) {
-			this.socket = socket;
+		public HTSPServerConnection(Socket socket, HTSPServer server) {
+			
 			this.server=server;
 			try {
 				this.is = new BufferedInputStream(socket.getInputStream());
@@ -84,44 +83,52 @@ public class HTSPServer extends Thread{
 			}
 			is.read(msg, 0, (int) len);
 			HTSMsg htsMsg = new HTSMsg(msg);
-			System.out.println("Recived " + htsMsg);
+			System.out.println("Server recived " + htsMsg);
 			handleHTSMsg(htsMsg);
 			
 			return htsMsg; 
 		}
 		
-		private void handleHTSMsg(HTSMsg msg){
-			String method = (String) msg.get("method");
-			handleClientToServerMethod(msg, method); 
+		public void send(HTSMsg msg) throws IOException{
+			byte[] bytes = msg.serialize();
+			System.out.println("Sending " + msg.get("method") + " " + msg);
+			os.write(bytes);
+			os.flush();
 		}
 		
-		private void handleClientToServerMethod(HTSMsg msg, String method) {
+		private void handleHTSMsg(HTSMsg msg) throws IOException{
+			String method = (String) msg.get("method");
+			handleClientToServerMethod(msg, method); 
+		}	
+		
+		private void handleClientToServerMethod(HTSMsg msg, String method) throws IOException {
 			if(method.equals("hello")){
-				MethodHandlers.handleHelloMethod(msg, server);
+				System.out.println("");
+				MethodHandlers.handleHelloMethod(msg, this);
 			} else if(method.equals("authenticate")){
-				MethodHandlers.handleAuthenticateMethod(msg,server);
+				MethodHandlers.handleAuthenticateMethod(msg,this);
 			} else if(method.equals("getDiskSpace")){
-				MethodHandlers.handleGetDiskSpaceMethod(msg,server);
+				MethodHandlers.handleGetDiskSpaceMethod(msg,this);
 			} else if(method.equals("getSysTime")){
-				MethodHandlers.handleGetSysTimeMethod(msg,server);
+				MethodHandlers.handleGetSysTimeMethod(msg,this);
 			} else if(method.equals("enableAsyncMetadata")){
-				MethodHandlers.handleEnableAsyncMetadataMethod(msg,server);
+				MethodHandlers.handleEnableAsyncMetadataMethod(msg,this,server);
 			} else if(method.equals("getEvent")){
-				MethodHandlers.handleGetEventMethod(msg,server);
+				MethodHandlers.handleGetEventMethod(msg,this);
 			} else if(method.equals("getEvents")){
-				MethodHandlers.handleGetEventsMethod(msg,server);
+				MethodHandlers.handleGetEventsMethod(msg,this);
 			} else if(method.equals("epgQuery")){
-				MethodHandlers.handleEpgQueryMethod(msg,server);
+				MethodHandlers.handleEpgQueryMethod(msg,this);
 			} else if(method.equals("getEpgObject")){
-				MethodHandlers.handleGetEpgObjectMethod(msg,server);
+				MethodHandlers.handleGetEpgObjectMethod(msg,this);
 			} else if(method.equals("getTicket")){
-				MethodHandlers.handleGetTicketMethod(msg,server);
+				MethodHandlers.handleGetTicketMethod(msg,this);
 			} else if(method.equals("subscribe")){
-				MethodHandlers.handleSubscribeMethod(msg,server);
+				MethodHandlers.handleSubscribeMethod(msg,this);
 			} else if(method.equals("unsubscribe")){
-				MethodHandlers.handleUnsubscribeMethod(msg,server);
+				MethodHandlers.handleUnsubscribeMethod(msg,this);
 			} else if(method.equals("subscriptionChangeWeight")){
-				MethodHandlers.handleSubscriptionChangeWeightMethod(msg,server);
+				MethodHandlers.handleSubscriptionChangeWeightMethod(msg,this);
 			} else{
 				System.out.println("unimplemented reply: " + method);
 			}
@@ -138,5 +145,17 @@ public class HTSPServer extends Thread{
 			}
 		}
 	}
-
+	
+	public void run(){
+		while(true){
+			try {
+				System.out.println("trying to start server, listening on port " + serverSocket.getLocalPort());
+				new HTSPServerConnection(serverSocket.accept(), this).start();
+				System.out.println("server started, listening on port " + serverSocket.getLocalPort());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 }

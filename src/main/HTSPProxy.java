@@ -21,10 +21,13 @@ public class HTSPProxy {
 		Config conf = new Config();
 		servers = conf.getServers();
 		
+		HTSPServer server = new HTSPServer(9982);
+		server.start();
+		
 		List<HTSPClient> clients = new ArrayList<HTSPClient>();
 		int clientid = 0;
 		for (ServerInfo serverInfo : servers) {
-			HTSPClient client = new HTSPClient(serverInfo);
+			HTSPClient client = new HTSPClient(serverInfo, server);
 			client.setClientid(clientid++);
 			clients.add(client);
 			client.start();
@@ -32,10 +35,5 @@ public class HTSPProxy {
 			client.enableAsyncMetadata();
 		}
 		
-		
-		
-		HTSPServer server = new HTSPServer(9982);
-		server.start();
-
 	}
 }

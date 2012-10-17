@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import main.HTSPProxy;
+
+import server.HTSPServer;
 import shared.HTSMsg;
 
 
@@ -17,6 +20,7 @@ public class HTSPClient extends Thread {
 	ServerInfo serverInfo;
 	ClientEvents events;
 	ClientSubscriptions subscriptions;
+	HTSPServer server;
 	
 	private int clientid;
 
@@ -24,13 +28,15 @@ public class HTSPClient extends Thread {
 		
 	private MagicSequence sequence;
 	
-	public HTSPClient(ServerInfo serverInfo){
+	public HTSPClient(ServerInfo serverInfo, HTSPServer server){
 		this.serverInfo = serverInfo;
+		this.server=server;
 		this.chan = new ClientTVChannels();
 		this.tags = new ClientTags();
 		this.events = new ClientEvents();
 		this.subscriptions = new ClientSubscriptions();
 		this.sequence = new MagicSequence();
+		
 		try {
 			System.out.println("Connecting to: " + serverInfo.getIP() + ":" + serverInfo.getPort());
 			socket = new Socket(serverInfo.getIP(), serverInfo.getPort());
@@ -56,7 +62,7 @@ public class HTSPClient extends Thread {
 	public void hello() throws IOException{
 		String method = "hello";
 		HTSMsg msg = new HTSMsg(method);
-		msg.put("htspversion", new Long(6));
+		msg.put("htspversion", new Long(1));
 		msg.put("clientname", "HTSPProxy");
 		msg.put("clientversion", "alpha");
 		msg.put("seq", sequence.pop(method));
@@ -205,7 +211,7 @@ public class HTSPClient extends Thread {
 		}
 		is.read(msg, 0, (int) len);
 		HTSMsg htsMsg = new HTSMsg(msg);
-		System.out.println("Recived " + htsMsg);
+		System.out.println("Client"+ clientid +" recived " + htsMsg);
 		handleHTSMsg(htsMsg);
 		
 		return htsMsg; 
@@ -220,20 +226,21 @@ public class HTSPClient extends Thread {
 		else if (method == null){
 			System.out.println("no seq, no method. Something is wrong. Forgot to send seq?");		
 		} else{
-			handleClientToServerMethod(msg, method);
+			handleServerToClientMethod(msg, method);
 		} 
 	}
 	
-	private void handleClientToServerMethod(HTSMsg msg, String method) {
+	private void handleServerToClientMethod(HTSMsg msg, String method) {
 		if(method.equals("channelAdd")){
 			chan.add(msg);
+			server.addChannel(msg);
 		} else if(method.equals("channelUpdate")){
 			chan.update(msg);
 		} else if (method.equals("channelDelete")){
 			chan.remove(msg);
 		} else if (method.equals("tagAdd")) {
-			System.out.println("Got new tag: " + msg.get("tagName"));
 			tags.add(msg);
+			server.addTag(msg);
 		} else if (method.equals("tagUpdate")) {
 			tags.update(msg);
 		} else if (method.equals("tagDelete")) {
@@ -259,7 +266,7 @@ public class HTSPClient extends Thread {
 		} else if(method.equals("muxpkt")){
 			subscriptions.muxpkt(msg);
 		} else{
-			System.out.println("unimplemented ClientToServer-method: " + method);
+			System.out.println("unimplemented ServerToClient-method: " + method);
 			//TODO something is wrong. Do something about it.
 		}		
 	}

@@ -1,149 +1,210 @@
 package server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import server.HTSPServer.HTSPServerConnection;
 import shared.HTSMsg;
 
 public class MethodHandlers {
 
-	public static String HTSPVERSION = "htspversion"; 
-	public static String SERVERNAME = "servername"; 
-	public static String SERVERVERSION = "serverversion";
-	public static String SERVERCAPABILITY = "servercapability";
-	public static String CHALLENGE = "challenge";
+	static Long htspversion = new Long(6);
+	static String servername = "HTSPProxy";
+	static String serverversion = "alpha";
+	static List<String> servercapability = new ArrayList<String>();
+	
+	private static byte[] createChallence(){
+		//TODO
+		return new byte[32];
+	}
 
-	public static void handleHelloMethod(HTSMsg msg, HTSPServer client){
-		Collection<String> requiredFields = Arrays.asList(new String[]{"htspversion","servername","serverversion","servercapability","challenge"});
+	public static void handleHelloMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException{
+		Collection<String> requiredFields = Arrays.asList(new String[]{"htspversion","clientname","clientversion"});
+		if(((Number) msg.get("htspversion")).longValue()==1){
+			requiredFields = Arrays.asList(new String[]{"htspversion","clientname"});
+		}
 		if (msg.keySet().containsAll(requiredFields)){
-			
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
+			reply.put("htspversion", htspversion);
+			reply.put("servername", servername);
+			reply.put("serverversion", serverversion);
+			reply.put("servercapability", servercapability);
+			reply.put("challenge", createChallence());
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 	}
 
-	public static void handleAuthenticateMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleAuthenticateMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-
-	public static void handleGetDiskSpaceMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleGetDiskSpaceMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"freediskspace","totaldiskspace"});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleGetSysTimeMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleGetSysTimeMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"time","timezone"});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleEnableAsyncMetadataMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleEnableAsyncMetadataMethod(HTSMsg msg, HTSPServerConnection conn, HTSPServer server) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
-			//TODO
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
+			for(HTSMsg channel:server.chan.getAll())
+				conn.send(channel);
+			for(HTSMsg tag:server.tags.getAll())
+				conn.send(tag);
+			//TODO send events (and dvr)
+			conn.send(new HTSMsg("initialSyncComplete"));
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleGetEventMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleGetEventMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId","channelId","start","stop"});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleGetEventsMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleGetEventsMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"events"});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleEpgQueryMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleEpgQueryMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"query"});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleGetEpgObjectMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleGetEpgObjectMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleGetTicketMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleGetTicketMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"path","ticket"});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleSubscribeMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleSubscribeMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleUnsubscribeMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleUnsubscribeMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
 
 	}
 
-	public static void handleSubscriptionChangeWeightMethod(HTSMsg msg, HTSPServer client) {
+	public static void handleSubscriptionChangeWeightMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			HTSMsg reply = new HTSMsg();
+			handleExtraFields(msg,reply);
 			//TODO
+			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");
 		}
-
+		
 	}
 
-
+	private static void handleExtraFields(HTSMsg msg, HTSMsg reply) {
+		Long seq;
+		if((seq = (Long) msg.get("seq")) != null)
+			reply.put("seq", seq);
+		//TODO implement authorization
+	}
 }

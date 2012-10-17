@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,10 +27,13 @@ public class HTSMsg {
 	public static final int HMF_LIST = 5;
 	public static final int HMF_DBL = 6;
 	private Integer noName;
+	private byte[] htsMsg;
+	private boolean isSerialized;
 
 	public HTSMsg(){
 		this.map = new HashMap<String, Object>();
 		noName = new Integer(0);
+		isSerialized=false;
 	}
 	
 	public HTSMsg(String method, Map<String,Object> map){
@@ -49,6 +53,8 @@ public class HTSMsg {
 	}
 	public HTSMsg(byte[] msg){
 		this();
+		htsMsg=msg;
+		isSerialized=true;
 		deserialize(msg);
 	}
 
@@ -74,9 +80,14 @@ public class HTSMsg {
 	}
 
 	public byte[] serialize() throws IOException{
+		if (isSerialized){
+			return htsMsg;
+		}
+		
 		int length = 0; //TODO set a proper length
 		ByteArrayOutputStream msg = new ByteArrayOutputStream();
-		for (Entry<String, Object> entry : map.entrySet()){
+		Set<Entry<String,Object>> set = map.entrySet();
+		for (Entry<String, Object> entry : set){
 			String name = entry.getKey();
 			Object value = entry.getValue();
 			int type = getType(value);
@@ -116,9 +127,12 @@ public class HTSMsg {
 				break;
 
 			case HMF_LIST:
-				data = new byte[0];
-				System.out.println("Got a list, dot know what to do.");
-				//TODO get the data from the list
+				HTSMsg dataMsg = new HTSMsg();
+				for(Object o : (List) value){
+					dataMsg.put("",o);
+				}
+				data = dataMsg.serialize();
+				//TODO make sure this works. Probably needs to handle the names.
 				break;
 
 			default:
@@ -148,6 +162,7 @@ public class HTSMsg {
 			ret[i+4]=b;
 			i++;
 		}
+		isSerialized=true;
 		return ret;
 	}
 
@@ -260,6 +275,7 @@ public class HTSMsg {
 	}
 	
 	public Object put(String key, Object value){
+		isSerialized=false;
 		Object ret = map.put(key, value);
 		return ret;
 	}
