@@ -80,32 +80,38 @@ public class HTSMsg {
 	}
 
 	public byte[] serialize() throws IOException{
-		if (isSerialized){
-			return htsMsg.clone();
-		}
-		
 		int length = 0; //TODO set a proper length
-		ByteArrayOutputStream msg = new ByteArrayOutputStream();
-		Set<Entry<String,Object>> set = map.entrySet();
-		for (Entry<String, Object> entry : set){
-			createHTSMsgField(entry.getKey(), entry.getValue(), msg);
+		byte[] msgByteArray;
+		if (isSerialized){
+			length =  htsMsg.length;
+			msgByteArray = htsMsg;
 		}
-		for (Object o : list){
-			createHTSMsgField("", o, msg);
+		else {
+			ByteArrayOutputStream msg = new ByteArrayOutputStream();
+			Set<Entry<String,Object>> set = map.entrySet();
+			for (Entry<String, Object> entry : set){
+				System.out.println("serializing map entry: " + entry);
+				createHTSMsgField(entry.getKey(), entry.getValue(), msg);
+			}
+			for (Object o : list){
+				System.out.println("serializing list entry: " + o);
+				createHTSMsgField("", o, msg);
+			}
+			length = msg.toByteArray().length;
+			msgByteArray = msg.toByteArray();
 		}
-		length = msg.toByteArray().length;
-		byte[] ret = new byte[length+4];
-		for (int i = 0; i < 4; i++) {
-			int offset = (3 - i) * 8;
-			ret[i] = (byte) ((length >>> offset) & 0xFF);
-		}
-		int i=0;
-		for (byte b:msg.toByteArray()){
-			ret[i+4]=b;
-			i++;
-		}
-		htsMsg=ret;
-		isSerialized=true;
+			byte[] ret = new byte[length+4];
+			for (int i = 0; i < 4; i++) {
+				int offset = (3 - i) * 8;
+				ret[i] = (byte) ((length >>> offset) & 0xFF);
+			}
+			int i=0;
+			for (byte b:msgByteArray){
+				ret[i+4]=b;
+				i++;
+			}
+			htsMsg=ret;
+			isSerialized=true;
 		return ret;
 	}
 	

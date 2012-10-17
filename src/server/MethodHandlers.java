@@ -90,8 +90,13 @@ public class MethodHandlers {
 				conn.send(tag);
 				tag.put("members",l);
 			}
-			for(HTSMsg channel:server.chan.getAll())
+			for (HTSMsg channel:server.chan.getAll()){
+				Object eventId = channel.remove("eventId");
+				Object nextEventId = channel.remove("nextEventId");
 				conn.send(channel);
+				channel.put("eventId",eventId);
+				channel.put("nextEventId",nextEventId);
+			}
 			for(HTSMsg tag:server.tags.getAll()){
 				tag.put("method", "tagUpdate");
 				conn.send(tag);
