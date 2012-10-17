@@ -91,7 +91,7 @@ public class HTSPServer extends Thread{
 		
 		public void send(HTSMsg msg) throws IOException{
 			byte[] bytes = msg.serialize();
-			System.out.println("Sending " + msg.get("method") + " " + msg);
+			System.out.println("Server Sending " + msg.get("method") + " " + msg);
 			os.write(bytes);
 			os.flush();
 		}

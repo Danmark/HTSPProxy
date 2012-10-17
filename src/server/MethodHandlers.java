@@ -84,13 +84,22 @@ public class MethodHandlers {
 		if (msg.keySet().containsAll(requiredFields)){
 			HTSMsg reply = new HTSMsg();
 			handleExtraFields(msg,reply);
+			conn.send(reply);
+			for(HTSMsg tag:server.tags.getAll()){
+				Object l = tag.remove("members");
+				conn.send(tag);
+				tag.put("members",l);
+			}
 			for(HTSMsg channel:server.chan.getAll())
 				conn.send(channel);
-			for(HTSMsg tag:server.tags.getAll())
+			for(HTSMsg tag:server.tags.getAll()){
+				tag.put("method", "tagUpdate");
 				conn.send(tag);
+				tag.put("method", "tagAdd");
+			}
 			//TODO send events (and dvr)
-			conn.send(new HTSMsg("initialSyncComplete"));
-			conn.send(reply);
+			conn.send(new HTSMsg("initialSyncCompleted"));
+			//TODO start the asyncMetadataThread. (and implement dito)
 		} else{
 			System.out.println("Faulty request");
 		}

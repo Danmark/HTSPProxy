@@ -60,7 +60,7 @@ public class HTSPClient extends Thread {
 	public void hello() throws IOException{
 		String method = "hello";
 		HTSMsg msg = new HTSMsg(method);
-		msg.put("htspversion", new Long(1));
+		msg.put("htspversion", new Long(6));
 		msg.put("clientname", "HTSPProxy");
 		msg.put("clientversion", "alpha");
 		msg.put("seq", sequence.pop(method));
@@ -209,7 +209,7 @@ public class HTSPClient extends Thread {
 		}
 		is.read(msg, 0, (int) len);
 		HTSMsg htsMsg = new HTSMsg(msg);
-		System.out.println("Client"+ clientid +" recived " + htsMsg);
+		System.out.println("Client"+ clientid +" recived "+ htsMsg.get("method") + " " + htsMsg);
 		handleHTSMsg(htsMsg);
 		
 		return htsMsg; 
@@ -270,8 +270,7 @@ public class HTSPClient extends Thread {
 	}
 
 	private void handleReply(HTSMsg msg, Long seq) {
-		String method = sequence.giveBack(seq);
-		System.out.println("Got seq: " + seq + ", sender-method=" + method);
+		String method = sequence.peek(seq);
 		if(method.equals("hello")){
 			ReplyHandlers.handleHelloReply(msg,this);
 		} else if(method.equals("authenticate")){
@@ -301,6 +300,7 @@ public class HTSPClient extends Thread {
 		} else{
 			System.out.println("unimplemented reply: " + method);
 		}
+		sequence.giveBack(seq);
 	}
 
 	public void run(){

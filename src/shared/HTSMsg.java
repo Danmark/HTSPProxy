@@ -81,7 +81,7 @@ public class HTSMsg {
 
 	public byte[] serialize() throws IOException{
 		if (isSerialized){
-			return htsMsg;
+			return htsMsg.clone();
 		}
 		
 		int length = 0; //TODO set a proper length
@@ -104,6 +104,7 @@ public class HTSMsg {
 			ret[i+4]=b;
 			i++;
 		}
+		htsMsg=ret;
 		isSerialized=true;
 		return ret;
 	}
@@ -275,6 +276,10 @@ public class HTSMsg {
 	
 	public Object get(String name){
 		return map.get(name);
+	}
+	
+	public Object remove(String name){
+		return map.remove(name);
 	}
 	
 	public Object put(String key, Object value){
