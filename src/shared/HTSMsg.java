@@ -90,11 +90,9 @@ public class HTSMsg {
 			ByteArrayOutputStream msg = new ByteArrayOutputStream();
 			Set<Entry<String,Object>> set = map.entrySet();
 			for (Entry<String, Object> entry : set){
-				System.out.println("serializing map entry: " + entry);
 				createHTSMsgField(entry.getKey(), entry.getValue(), msg);
 			}
 			for (Object o : list){
-				System.out.println("serializing list entry: " + o);
 				createHTSMsgField("", o, msg);
 			}
 			length = msg.toByteArray().length;
