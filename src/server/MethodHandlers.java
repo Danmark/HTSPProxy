@@ -8,6 +8,7 @@ import java.util.List;
 
 import server.HTSPServer.HTSPServerConnection;
 import shared.HTSMsg;
+import shared.HTSPMonitor;
 
 public class MethodHandlers {
 
@@ -79,21 +80,21 @@ public class MethodHandlers {
 
 	}
 
-	public static void handleEnableAsyncMetadataMethod(HTSMsg msg, HTSPServerConnection conn, HTSPServer server) throws IOException {
+	public static void handleEnableAsyncMetadataMethod(HTSMsg msg, HTSPServerConnection conn, HTSPMonitor monitor) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
 			HTSMsg reply = new HTSMsg();
 			handleExtraFields(msg,reply);
 			conn.send(reply);
-			for(HTSMsg tag:server.tags.getAll()){
+			for(HTSMsg tag:monitor.getAllTags()){
 				Object l = tag.remove("members");
 				conn.send(tag);
 				tag.put("members",l);
 			}
-			for (HTSMsg channel:server.chan.getAll()){
+			for (HTSMsg channel:monitor.getAllChannels()){
 				conn.send(channel);
 			}
-			for(HTSMsg tag:server.tags.getAll()){
+			for(HTSMsg tag:monitor.getAllTags()){
 				tag.put("method", "tagUpdate");
 				conn.send(tag);
 				tag.put("method", "tagAdd");
@@ -107,12 +108,19 @@ public class MethodHandlers {
 
 	}
 
-	public static void handleGetEventMethod(HTSMsg msg, HTSPServerConnection conn, HTSPServer server) throws IOException {
+	public static void handleGetEventMethod(HTSMsg msg, HTSPServerConnection conn, HTSPMonitor monitor) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId"});
 		if (msg.keySet().containsAll(requiredFields)){
-			HTSMsg reply = server.events.get((Long) msg.get("eventId"));
-			if(reply==null)
-				reply = new HTSMsg();
+			HTSMsg reply = monitor.getEvent((Long) msg.get("eventId"));
+			monitor.getClient(0).getEvent((Long) msg.get("eventId"), "sv");
+			while((reply = monitor.getEvent((Long) msg.get("eventId")))==null){
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			handleExtraFields(msg,reply);
 			//TODO
 			conn.send(reply);

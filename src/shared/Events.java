@@ -114,7 +114,7 @@ public class Events {
 	private Map<Long, HTSMsg> events;
 	private HTSPServer server;
 	
-	public Events(HTSPServer server){
+	public Events(){
 		this.server=server;
 		events = new HashMap<Long,HTSMsg>();
 	}
@@ -145,23 +145,6 @@ public class Events {
 	}
 	
 	public synchronized HTSMsg get(long eventId){
-		try {
-			server.getClient(0).getEvent(eventId, "sv");
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		HTSMsg ret = events.get(eventId);
-		//TODO handle multiple servers
-		while(ret==null){
-			try {
-				wait(10);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			ret = events.get(eventId);
-		}
 		return events.get(eventId);
 	}
 

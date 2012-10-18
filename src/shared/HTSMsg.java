@@ -51,9 +51,10 @@ public class HTSMsg {
 		this();
 		this.map.putAll(map);
 	}
+	
 	public HTSMsg(byte[] msg){
 		this();
-		htsMsg=msg;
+		htsMsg=msg.clone();
 		isSerialized=true;
 		deserialize();
 	}
@@ -97,19 +98,19 @@ public class HTSMsg {
 			}
 			length = msg.toByteArray().length;
 			msgByteArray = msg.toByteArray();
-		}
-			byte[] ret = new byte[length+4];
-			for (int i = 0; i < 4; i++) {
-				int offset = (3 - i) * 8;
-				ret[i] = (byte) ((length >>> offset) & 0xFF);
-			}
-			int i=0;
-			for (byte b:msgByteArray){
-				ret[i+4]=b;
-				i++;
-			}
-			htsMsg=ret;
+			htsMsg=msgByteArray;
 			isSerialized=true;
+		}
+		byte[] ret = new byte[length+4];
+		for (int i = 0; i < 4; i++) {
+			int offset = (3 - i) * 8;
+			ret[i] = (byte) ((length >>> offset) & 0xFF);
+		}
+		int i=0;
+		for (byte b:msgByteArray){
+			ret[i+4]=b;
+			i++;
+		}
 		return ret;
 	}
 	
@@ -304,5 +305,15 @@ public class HTSMsg {
 	
 	public String toString(){
 		return map.toString();
+	}
+	
+	public HTSMsg clone(){
+		try {
+			serialize();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new HTSMsg(htsMsg);
 	}
 }

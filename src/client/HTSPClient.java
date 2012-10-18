@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 
 import server.HTSPServer;
 import shared.HTSMsg;
+import shared.HTSPMonitor;
 
 
 public class HTSPClient extends Thread {
@@ -18,7 +19,7 @@ public class HTSPClient extends Thread {
 	ServerInfo serverInfo;
 	ClientEvents events;
 	ClientSubscriptions subscriptions;
-	HTSPServer server;
+	HTSPMonitor monitor;
 	
 	private int clientid;
 
@@ -26,9 +27,9 @@ public class HTSPClient extends Thread {
 		
 	private MagicSequence sequence;
 	
-	public HTSPClient(ServerInfo serverInfo, HTSPServer server){
+	public HTSPClient(ServerInfo serverInfo, HTSPMonitor monitor){
 		this.serverInfo = serverInfo;
-		this.server=server;
+		this.monitor=monitor;
 		this.chan = new ClientTVChannels();
 		this.tags = new ClientTags();
 		this.events = new ClientEvents();
@@ -231,31 +232,31 @@ public class HTSPClient extends Thread {
 	private void handleServerToClientMethod(HTSMsg msg, String method) {
 		if(method.equals("channelAdd")){
 			chan.add(msg);
-			server.addChannel(msg);
+			monitor.addChannel(msg);
 		} else if(method.equals("channelUpdate")){
 			chan.update(msg);
-			server.updateChannel(msg);
+			monitor.updateChannel(msg);
 		} else if (method.equals("channelDelete")){
 			chan.remove(msg);
-			server.deleteChannel(msg);
+			monitor.deleteChannel(msg);
 		} else if (method.equals("tagAdd")) {
 			tags.add(msg);
-			server.addTag(msg);
+			monitor.addTag(msg);
 		} else if (method.equals("tagUpdate")) {
 			tags.update(msg);
-			server.updateTag(msg);
+			monitor.updateTag(msg);
 		} else if (method.equals("tagDelete")) {
 			tags.remove(msg);
-			server.removeTag(msg);
+			monitor.removeTag(msg);
 		} else if(method.equals("eventAdd")){
 			events.add(msg);
-			server.addEvent(msg);
+			monitor.addEvent(msg);
 		} else if(method.equals("eventUpdate")){
 			events.update(msg);
-			server.updateEvent(msg);
+			monitor.updateEvent(msg);
 		} else if(method.equals("eventDeleted")){
 			events.remove(msg);
-			server.removeEvent(msg);
+			monitor.removeEvent(msg);
 		} else if(method.equals("initialSyncCompleted")){
 			//TODO do something maybe.
 		} else if(method.equals("subscriptionStart")){

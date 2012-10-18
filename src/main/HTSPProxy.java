@@ -5,12 +5,13 @@ import java.util.List;
 
 import server.HTSPServer;
 import shared.Config;
+import shared.HTSPMonitor;
 import client.HTSPClient;
 import client.ServerInfo;
 
 
 public class HTSPProxy {
-	public static List<ServerInfo> servers;
+	public static HTSPMonitor monitor;
 	
 	/**
 	 * @param args
@@ -18,18 +19,17 @@ public class HTSPProxy {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException {
-		Config conf = new Config();
-		servers = conf.getServers();
-		List<HTSPClient> clients = new ArrayList<HTSPClient>();
+		monitor = new HTSPMonitor();
 		
-		HTSPServer server = new HTSPServer(9982, clients);
+		HTSPServer server = new HTSPServer(9982, monitor);
+		monitor.addServer(server);
 		server.start();
 		
 		int clientid = 0;
-		for (ServerInfo serverInfo : servers) {
-			HTSPClient client = new HTSPClient(serverInfo, server);
+		for (ServerInfo serverInfo : monitor.getServers()) {
+			HTSPClient client = new HTSPClient(serverInfo, monitor);
 			client.setClientid(clientid++);
-			clients.add(client);
+			monitor.addHTSPClient(client);
 			client.start();
 			client.hello();
 			client.enableAsyncMetadata();

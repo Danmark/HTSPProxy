@@ -34,7 +34,7 @@ public class Tags {
 	
 	public static final String[] HTSMsgFields = {TAGID,TAGNAME,TAGICON,TAGTITLEICON,MEMBERS};
 	
-	private Map<Long, HTSMsg> tags;
+	private HashMap<Long, HTSMsg> tags;
 	
 	public Tags() {
 		this.tags = new HashMap<Long, HTSMsg>();
@@ -79,5 +79,11 @@ public class Tags {
 	
 	public synchronized Collection<HTSMsg> getAll(){
 		return tags.values();
+	}
+	
+	public synchronized Tags clone(){
+		Tags ret = new Tags();
+		ret.tags=(HashMap<Long, HTSMsg>) tags.clone();
+		return ret;
 	}
 }

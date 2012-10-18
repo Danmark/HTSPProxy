@@ -11,6 +11,7 @@ import client.HTSPClient;
 
 import shared.HTSMsg;
 import shared.Events;
+import shared.HTSPMonitor;
 import shared.Subscriptions;
 import shared.TVChannels;
 import shared.Tags;
@@ -24,17 +25,12 @@ public class HTSPServer extends Thread{
 	List<HTSPClient> clients;
 	BufferedOutputStream os;
 	BufferedInputStream is;
-	TVChannels chan;
-	Tags tags;
-	Events events;
-	Subscriptions subscriptions;
+
+	HTSPMonitor monitor;
 	
-	public HTSPServer(int port, List<HTSPClient> clients){
-		this.clients = clients;
-		this.chan = new TVChannels();
-		this.tags = new Tags();
-		this.events = new Events(this);
-		this.subscriptions = new Subscriptions();
+	public HTSPServer(int port, HTSPMonitor monitor){
+		this.monitor = monitor;
+		
 		try {
 			serverSocket = new ServerSocket(port);
 		} catch (IOException e) {
@@ -42,45 +38,6 @@ public class HTSPServer extends Thread{
 			e.printStackTrace();
 		}
 		System.out.println("Server constructed");
-	}
-	
-	public void addChannel(HTSMsg channel){
-		chan.add(channel);
-	}
-	
-	public void updateChannel(HTSMsg msg) {
-		chan.update(msg);
-	}
-	
-	public void deleteChannel(HTSMsg msg) {
-		chan.remove(msg);
-	}
-	public void addTag(HTSMsg tag) {
-		tags.add(tag);		
-	}
-	
-	public void updateTag(HTSMsg msg) {
-		tags.update(msg);
-	}
-	
-	public void removeTag(HTSMsg msg) {
-		tags.remove(msg);
-	}
-	
-	public void addEvent(HTSMsg msg) {
-		events.add(msg);
-	}
-	
-	public void updateEvent(HTSMsg msg) {
-		events.update(msg);
-	}
-	
-	public void removeEvent(HTSMsg msg) {
-		events.remove(msg);
-	}
-	
-	public HTSPClient getClient(int id){
-		return clients.get(id);
 	}
 	
 	public class HTSPServerConnection extends Thread{
@@ -155,9 +112,9 @@ public class HTSPServer extends Thread{
 			} else if(method.equals("getSysTime")){
 				MethodHandlers.handleGetSysTimeMethod(msg,this);
 			} else if(method.equals("enableAsyncMetadata")){
-				MethodHandlers.handleEnableAsyncMetadataMethod(msg,this,server);
+				MethodHandlers.handleEnableAsyncMetadataMethod(msg,this,monitor);
 			} else if(method.equals("getEvent")){
-				MethodHandlers.handleGetEventMethod(msg,this,server);
+				MethodHandlers.handleGetEventMethod(msg,this,monitor);
 			} else if(method.equals("getEvents")){
 				MethodHandlers.handleGetEventsMethod(msg,this);
 			} else if(method.equals("epgQuery")){

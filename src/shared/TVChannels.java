@@ -88,5 +88,11 @@ public class TVChannels {
 		return channels.values();
 	}
 	
+	public TVChannels clone(){
+		TVChannels ret =  new TVChannels();
+		ret.channels = (HashMap<Long, HTSMsg>) channels.clone();
+		return ret;
+	}
+	
 
 }
