@@ -10,11 +10,7 @@ import java.util.List;
 import client.HTSPClient;
 
 import shared.HTSMsg;
-import shared.Events;
 import shared.HTSPMonitor;
-import shared.Subscriptions;
-import shared.TVChannels;
-import shared.Tags;
 
 
 
@@ -43,13 +39,7 @@ public class HTSPServer extends Thread{
 	public class HTSPServerConnection extends Thread{
 		private BufferedInputStream is;
 		private BufferedOutputStream os;
-		private HTSPServer server;
-		private Socket socket;
-		
 		public HTSPServerConnection(Socket socket, HTSPServer server) {
-			
-			this.server=server;
-			this.socket = socket;
 			
 			try {
 				this.is = new BufferedInputStream(socket.getInputStream());

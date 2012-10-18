@@ -1,11 +1,8 @@
 package shared;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import server.HTSPServer;
 
 public class Events {
 	/**
@@ -112,10 +109,8 @@ public class Events {
 	public static final String[] HTSMsgFields = {EVENTID,CHANNELID,START,STOP,TITLE,SUMMARY,DESCRIPTION,SERIERLINKID,EPISODEID,SEASONID,BRANDID,CONTENTTYPE,AGERATING,STARRATING,FIRSTAIRED,SEASONNUMBER,SEASONCOUNT,EPISODENUMBER,EPISODECOUNT,PARTNUMBER,PARTCOUNT,EPISODEONSCREEN,IMAGE,DVRID,NEXTEVENTID};
 	
 	private Map<Long, HTSMsg> events;
-	private HTSPServer server;
 	
 	public Events(){
-		this.server=server;
 		events = new HashMap<Long,HTSMsg>();
 	}
 	

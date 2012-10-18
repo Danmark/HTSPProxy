@@ -1,10 +1,7 @@
 package main;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import server.HTSPServer;
-import shared.Config;
 import shared.HTSPMonitor;
 import client.HTSPClient;
 import client.ServerInfo;
