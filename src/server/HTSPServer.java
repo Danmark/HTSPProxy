@@ -59,7 +59,7 @@ public class HTSPServer extends Thread{
 				}
 			}
 			is.read(lenBytes, 0, 4);
-			long len = HTSMsg.getS64(lenBytes, 4);
+			long len = HTSMsg.deserializeS64(lenBytes, 4);
 			byte[] msg = new byte[(int)len];
 			while (is.available() < len){
 				try {
