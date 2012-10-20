@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.List;
 
 import client.HTSPClient;
@@ -63,8 +64,8 @@ public class HTSPServer extends Thread{
 			byte[] msg = new byte[(int)len];
 			while (is.available() < len){
 				try {
-					Thread.sleep(100);
-					//TODO check wait time
+					Thread.sleep(0);
+					//TODO check wait time, 100 was too long!
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -93,7 +94,6 @@ public class HTSPServer extends Thread{
 		
 		private void handleClientToServerMethod(HTSMsg msg, String method) throws IOException {
 			if(method.equals("hello")){
-				System.out.println("");
 				MethodHandlers.handleHelloMethod(msg, this);
 			} else if(method.equals("authenticate")){
 				MethodHandlers.handleAuthenticateMethod(msg,this);
@@ -141,8 +141,9 @@ public class HTSPServer extends Thread{
 		while(true){
 			try {
 				new HTSPServerConnection(serverSocket.accept(), this).start();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
+			} catch (SocketException e) {
+				System.out.println("Client disconnected...");
+			} catch (IOException e){
 				e.printStackTrace();
 			}
 		}

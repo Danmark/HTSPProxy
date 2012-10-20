@@ -19,6 +19,7 @@ public class HTSPClient extends Thread {
 	ClientEvents events;
 	ClientSubscriptions subscriptions;
 	HTSPMonitor monitor;
+	boolean waitingForReply;
 	
 	private int clientid;
 
@@ -57,7 +58,7 @@ public class HTSPClient extends Thread {
 		return clientid;
 	}
 		
-	public void hello() throws IOException{
+	public void hello() throws IOException, InterruptedException{
 		String method = "hello";
 		HTSMsg msg = new HTSMsg(method);
 		msg.put("htspversion", new Long(6));
@@ -219,7 +220,7 @@ public class HTSPClient extends Thread {
 		String method = (String) msg.get("method");
 
 		if (msg.get("seq") != null) {
-			handleReply(msg, (Long) msg.get("seq"));	
+			handleReply(msg, (Long) msg.get("seq"));
 		}
 		else if (method == null){
 			System.out.println("no seq, no method. Something is wrong. Forgot to send seq?");		
@@ -232,6 +233,18 @@ public class HTSPClient extends Thread {
 		if(method.equals("channelAdd")){
 			chan.add(msg);
 			monitor.addChannel(msg);
+			Long eventId = (Long) msg.get("eventId");
+			Long nextEventId = (Long) msg.get("nextEventId");
+			try {
+				if (eventId!=null)
+					getEvent(eventId, "sv");
+				if (nextEventId!=null)
+					getEvent(nextEventId, "sv");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		} else if(method.equals("channelUpdate")){
 			chan.update(msg);
 			monitor.updateChannel(msg);
@@ -278,7 +291,9 @@ public class HTSPClient extends Thread {
 
 	private void handleReply(HTSMsg msg, Long seq) {
 		String method = sequence.peek(seq);
-		if(method.equals("hello")){
+		if(method==null){
+			
+		}else if(method.equals("hello")){
 			ReplyHandlers.handleHelloReply(msg,this);
 		} else if(method.equals("authenticate")){
 			ReplyHandlers.handleAuthenticateReply(msg,this);

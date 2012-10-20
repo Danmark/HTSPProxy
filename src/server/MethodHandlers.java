@@ -87,12 +87,16 @@ public class MethodHandlers {
 			handleExtraFields(msg,reply);
 			conn.send(reply);
 			for(HTSMsg tag:monitor.getAllTags()){
-				Object l = tag.remove("members");
+				Object members = tag.remove("members");
 				conn.send(tag);
-				tag.put("members",l);
+				tag.put("members",members);
 			}
 			for (HTSMsg channel:monitor.getAllChannels()){
+				Object eventId = channel.remove("eventId");
+				Object nextEventId = channel.remove("nextEventId");
 				conn.send(channel);
+				channel.put("eventId", eventId);
+				channel.put("nextEventId", nextEventId);
 			}
 			for(HTSMsg tag:monitor.getAllTags()){
 				tag.put("method", "tagUpdate");
@@ -112,17 +116,14 @@ public class MethodHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId"});
 		if (msg.keySet().containsAll(requiredFields)){
 			HTSMsg reply = monitor.getEvent((Long) msg.get("eventId"));
-			monitor.getClient(0).getEvent((Long) msg.get("eventId"), "sv");
-			while((reply = monitor.getEvent((Long) msg.get("eventId")))==null){
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			if(reply==null){
+				reply = new HTSMsg();
+				reply.put("error", "Event does not exist");
+			}
+			else{
+				reply.remove("method");
 			}
 			handleExtraFields(msg,reply);
-			//TODO
 			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");

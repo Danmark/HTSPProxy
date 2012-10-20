@@ -115,7 +115,6 @@ public class Events {
 	}
 	
 	public void add(HTSMsg msg) {
-		System.out.println("adding event to server");
 		events.put(((Number)msg.get(EVENTID)).longValue(), msg);
 	}
 

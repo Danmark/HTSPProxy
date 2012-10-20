@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import shared.HTSMsg;
+import shared.HTSPMonitor;
 
 public class ReplyHandlers {
 	
@@ -41,7 +42,9 @@ public class ReplyHandlers {
 					}
 				}
 			}
-		} else{
+		} else if (msg.get("error") != null){
+			//TODO
+		} else {
 			System.out.println("Faulty reply");
 		}
 	}
@@ -49,6 +52,8 @@ public class ReplyHandlers {
 	public static void handleAuthenticateReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			//TODO
+		} else if (msg.get("error") != null){
 			//TODO
 		} else{
 			System.out.println("Faulty reply");
@@ -61,6 +66,8 @@ public class ReplyHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"freediskspace","totaldiskspace"});
 		if (msg.keySet().containsAll(requiredFields)){
 			//TODO
+		} else if (msg.get("error") != null){
+			//TODO
 		} else{
 			System.out.println("Faulty reply");
 		}
@@ -70,6 +77,8 @@ public class ReplyHandlers {
 	public static void handleGetSysTimeReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"time","timezone"});
 		if (msg.keySet().containsAll(requiredFields)){
+			//TODO
+		} else if (msg.get("error") != null){
 			//TODO
 		} else{
 			System.out.println("Faulty reply");
@@ -81,6 +90,8 @@ public class ReplyHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
 			//TODO
+		} else if (msg.get("error") != null){
+			//TODO
 		} else{
 			System.out.println("Faulty reply");
 		}
@@ -91,6 +102,9 @@ public class ReplyHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId","channelId","start","stop"});
 		if (msg.keySet().containsAll(requiredFields)){
 			client.events.add(msg);
+			client.monitor.addEvent(msg);
+		} else if (msg.get("error") != null){
+			//TODO
 		} else{
 			System.out.println("Faulty reply");
 		}
@@ -100,6 +114,8 @@ public class ReplyHandlers {
 	public static void handleGetEventsReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"events"});
 		if (msg.keySet().containsAll(requiredFields)){
+			//TODO
+		} else if (msg.get("error") != null){
 			//TODO
 		} else{
 			System.out.println("Faulty reply");
@@ -111,6 +127,8 @@ public class ReplyHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"query"});
 		if (msg.keySet().containsAll(requiredFields)){
 			//TODO
+		} else if (msg.get("error") != null){
+			//TODO
 		} else{
 			System.out.println("Faulty reply");
 		}
@@ -120,6 +138,8 @@ public class ReplyHandlers {
 	public static void handleGetEpgObjectReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			//TODO
+		} else if (msg.get("error") != null){
 			//TODO
 		} else{
 			System.out.println("Faulty reply");
@@ -131,6 +151,8 @@ public class ReplyHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"path","ticket"});
 		if (msg.keySet().containsAll(requiredFields)){
 			//TODO
+		} else if (msg.get("error") != null){
+			//TODO
 		} else{
 			System.out.println("Faulty reply");
 		}
@@ -140,6 +162,8 @@ public class ReplyHandlers {
 	public static void handleSubscribeReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			//TODO
+		} else if (msg.get("error") != null){
 			//TODO
 		} else{
 			System.out.println("Faulty reply");
@@ -151,6 +175,8 @@ public class ReplyHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
 			//TODO
+		} else if (msg.get("error") != null){
+			//TODO
 		} else{
 			System.out.println("Faulty reply");
 		}
@@ -160,6 +186,8 @@ public class ReplyHandlers {
 	public static void handleSubscriptionChangeWeightReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
+			//TODO
+		} else if (msg.get("error") != null){
 			//TODO
 		} else{
 			System.out.println("Faulty reply");

@@ -117,11 +117,7 @@ public class ClientEvents {
 	}
 	
 	public synchronized void add(HTSMsg msg) {
-		System.out.println("Adding event to Client");
 		events.put(((Number)msg.get(EVENTID)).longValue(), msg);
-		System.out.println("Event added to Client");
-		notifyAll();
-
 	}
 
 	public void update(HTSMsg msg) {

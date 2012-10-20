@@ -237,9 +237,9 @@ public class HTSMsg {
 			if (data.equals(null)) {
 				System.out.println("datan Šr null. " + name);				
 			}
-			if (name.equals("error")){
-				System.out.println(data);
-			}
+//			if (name.equals("error")){
+//				System.out.println(data);
+//			}
 			
 			i+=dataLength;			
 		}
