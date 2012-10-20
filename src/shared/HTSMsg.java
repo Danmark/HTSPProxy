@@ -184,9 +184,9 @@ public class HTSMsg {
 			Object data="";
 			int type = (int)htsMsg[(int)i];
 			i++;
-			nameLength = (short) getS64(Arrays.copyOfRange(htsMsg, i, i+1),1) ;
+			nameLength = (short) deserializeS64(Arrays.copyOfRange(htsMsg, i, i+1),1) ;
 			i++;
-			dataLength = getS64(Arrays.copyOfRange(htsMsg, i, i+4),4);
+			dataLength = deserializeS64(Arrays.copyOfRange(htsMsg, i, i+4),4);
 			i+=4;
 			try {
 				name = new String(Arrays.copyOfRange(htsMsg, i, i+nameLength), "UTF-8");
@@ -202,26 +202,26 @@ public class HTSMsg {
 			byte[] dataBytes = Arrays.copyOfRange(htsMsg, i, (int)(i + dataLength));
 			switch (type) {
 			case HMF_NONE:
-				data = getBytes(dataBytes,dataLength);
+				data = deserializeBytes(dataBytes,dataLength);
 				break;
 			case HMF_MAP:
-				data = getMap(dataBytes,dataLength);
+				data = deserializeMap(dataBytes,dataLength);
 				break;
 				
 			case HMF_S64:
-				data = getS64(dataBytes,dataLength);
+				data = deserializeS64(dataBytes,dataLength);
 				break;
 				
 			case HMF_STR:
-				data = getString(dataBytes,dataLength);
+				data = deserializeString(dataBytes,dataLength);
 				break;
 				
 			case HMF_BIN:
-				data = getBytes(dataBytes,dataLength);
+				data = deserializeBytes(dataBytes,dataLength);
 				break;
 				
 			case HMF_LIST:
-				data = getList(dataBytes,dataLength);
+				data = deserializeList(dataBytes,dataLength);
 				break;
 			default:
 				System.out.print("Unsupported data type: " + type);
@@ -245,16 +245,16 @@ public class HTSMsg {
 		}
 	}
 
-	private List<Object> getList(byte[] dataBytes, long dataLength) {
+	private List<Object> deserializeList(byte[] dataBytes, long dataLength) {
 		HTSMsg msg = new HTSMsg(dataBytes);
 		return msg.list;
 	}
 
-	private Object getBytes(byte[] dataBytes, long dataLength) {
+	private Object deserializeBytes(byte[] dataBytes, long dataLength) {
 		return dataBytes.clone();
 	}
 
-	private Object getString(byte[] dataBytes, long dataLength) {
+	private Object deserializeString(byte[] dataBytes, long dataLength) {
 		try {
 			return new String(ByteBuffer.wrap(dataBytes, 0, (int)dataLength).array(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
@@ -264,7 +264,7 @@ public class HTSMsg {
 		}		
 	}
 
-	public static long getS64(byte[] dataBytes, long dataLength) {
+	public static long deserializeS64(byte[] dataBytes, long dataLength) {
 		byte[] s64 = new byte[8];
 		for (int k = 8-(int)dataLength ; k<8 ;k++)
 			s64[k] = dataBytes[k-8+(int)dataLength];
@@ -273,7 +273,7 @@ public class HTSMsg {
 		return data;
 	}
 
-	private Map<String,Object> getMap(byte[] dataBytes, long dataLength) {
+	private Map<String,Object> deserializeMap(byte[] dataBytes, long dataLength) {
 		Map<String,Object> data = (new HTSMsg(dataBytes)).map;
 		return data;
 	}
