@@ -61,7 +61,7 @@ public class HTSPClient extends Thread {
 	public void hello() throws IOException, InterruptedException{
 		String method = "hello";
 		HTSMsg msg = new HTSMsg(method);
-		msg.put("htspversion", new Long(6));
+		msg.put("htspversion", new Long(1));
 		msg.put("clientname", "HTSPProxy");
 		msg.put("clientversion", "alpha");
 		msg.put("seq", sequence.pop(method));

@@ -3,10 +3,14 @@ package server;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.List;
+
+import com.sun.tools.javac.code.Attribute.Array;
 
 import client.HTSPClient;
 
@@ -34,16 +38,15 @@ public class HTSPServer extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Server constructed");
 	}
 	
 	public class HTSPServerConnection extends Thread{
-		private BufferedInputStream is;
+		private InputStream is;
 		private BufferedOutputStream os;
 		public HTSPServerConnection(Socket socket, HTSPServer server) {
 			
 			try {
-				this.is = new BufferedInputStream(socket.getInputStream());
+				this.is = socket.getInputStream();
 				this.os = new BufferedOutputStream(socket.getOutputStream());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -52,23 +55,16 @@ public class HTSPServer extends Thread{
 		}
 		
 		public HTSMsg rcv() throws IOException{
-			System.out.println("1");
 			byte[] lenBytes = new byte[4];
-			System.out.println("2");
 			while (is.available() < 4) {
 				try {
 					Thread.sleep(10);
-					System.out.println(is.available());
 				} catch (InterruptedException e) {
 				}
 			}
-			System.out.println("3");
 			is.read(lenBytes, 0, 4);
-			System.out.println("4");
 			long len = HTSMsg.deserializeS64(lenBytes, 4);
-			System.out.println("5");
 			byte[] msg = new byte[(int)len];
-			System.out.println("6");
 			while (is.available() < len){
 				try {
 					Thread.sleep(10);
@@ -78,13 +74,10 @@ public class HTSPServer extends Thread{
 					e.printStackTrace();
 				}
 			}
-			System.out.println("7");
 			is.read(msg, 0, (int) len);
-			System.out.println("8");
 			HTSMsg htsMsg = new HTSMsg(msg);
-			System.out.println("Server recived " + htsMsg);
+			System.out.println("Server recived " + htsMsg.get("method") + " " + htsMsg);
 			handleHTSMsg(htsMsg);
-			System.out.println("9");
 			
 			return htsMsg; 
 		}
@@ -138,8 +131,18 @@ public class HTSPServer extends Thread{
 				while(true){
 					try {
 						rcv();
+					} catch (SocketException e) {
+						try {
+							os.close();
+							is.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						System.out.println("Client disconnected...");
+						break;
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 						break;
 					}

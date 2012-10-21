@@ -34,23 +34,23 @@ public class HTSMsg {
 		this.list = new LinkedList<Object>();
 		isSerialized=false;
 	}
-	
+
 	public HTSMsg(String method, Map<String,Object> map){
 		this();
 		this.map.putAll(map);
 		this.map.put("method", method);
 	}
-	
+
 	public HTSMsg(String method){
 		this();
 		this.map.put("method", method);
 	}
-	
+
 	public HTSMsg(Map<String, Object> map) {
 		this();
 		this.map.putAll(map);
 	}
-	
+
 	public HTSMsg(byte[] msg){
 		this();
 		htsMsg=msg.clone();
@@ -61,7 +61,7 @@ public class HTSMsg {
 
 	private int getType(Object entry){
 		int ret = 0;
-		
+
 		if(entry instanceof Map){
 			ret = HMF_MAP;
 		}else if (entry instanceof Long){
@@ -75,7 +75,7 @@ public class HTSMsg {
 		}else {
 			throw new IllegalArgumentException("The datatype '" + entry.getClass() + "' is not implemented");
 		}
-		
+
 		return ret;
 	}
 
@@ -112,10 +112,10 @@ public class HTSMsg {
 		}
 		return ret;
 	}
-	
+
 	private void createHTSMsgField(String name, Object value, ByteArrayOutputStream msg) throws IOException{
 		int type = getType(value);
-		final byte[] data;
+		byte[] data;
 		switch (type) {
 		case HMF_MAP:
 			// TODO: get the data from the map
@@ -156,6 +156,8 @@ public class HTSMsg {
 				dataMsg.put("",o);
 			}
 			data = dataMsg.serialize();
+			data = Arrays.copyOfRange(data, 4, data.length+1);
+			//TODO this hack is so ugly!! fix it!
 			break;
 		default:
 			throw new RuntimeException("Unsupported type: " + type);
@@ -207,19 +209,19 @@ public class HTSMsg {
 			case HMF_MAP:
 				data = deserializeMap(dataBytes,dataLength);
 				break;
-				
+
 			case HMF_S64:
 				data = deserializeS64(dataBytes,dataLength);
 				break;
-				
+
 			case HMF_STR:
 				data = deserializeString(dataBytes,dataLength);
 				break;
-				
+
 			case HMF_BIN:
 				data = deserializeBytes(dataBytes,dataLength);
 				break;
-				
+
 			case HMF_LIST:
 				data = deserializeList(dataBytes,dataLength);
 				break;
@@ -227,7 +229,7 @@ public class HTSMsg {
 				System.out.print("Unsupported data type: " + type);
 				return;
 			}
-			
+
 			if(name.equals("")){
 				list.add(data);
 			}
@@ -237,10 +239,10 @@ public class HTSMsg {
 			if (data.equals(null)) {
 				System.out.println("datan Šr null. " + name);				
 			}
-//			if (name.equals("error")){
-//				System.out.println(data);
-//			}
-			
+			//			if (name.equals("error")){
+			//				System.out.println(data);
+			//			}
+
 			i+=dataLength;			
 		}
 	}
@@ -277,15 +279,15 @@ public class HTSMsg {
 		Map<String,Object> data = (new HTSMsg(dataBytes)).map;
 		return data;
 	}
-	
+
 	public Object get(String name){
 		return map.get(name);
 	}
-	
+
 	public Object remove(String name){
 		return map.remove(name);
 	}
-	
+
 	public Object put(String key, Object value){
 		isSerialized=false;
 		Object ret = value;
@@ -296,16 +298,16 @@ public class HTSMsg {
 		}
 		return ret;
 	}
-	
+
 	public Set<String> keySet(){
 		Set<String> ret = map.keySet();
 		return ret;
 	}
-	
+
 	public String toString(){
 		return map.toString();
 	}
-	
+
 	public HTSMsg clone(){
 		try {
 			serialize();
