@@ -52,29 +52,39 @@ public class HTSPServer extends Thread{
 		}
 		
 		public HTSMsg rcv() throws IOException{
+			System.out.println("1");
 			byte[] lenBytes = new byte[4];
+			System.out.println("2");
 			while (is.available() < 4) {
 				try {
 					Thread.sleep(10);
+					System.out.println(is.available());
 				} catch (InterruptedException e) {
 				}
 			}
+			System.out.println("3");
 			is.read(lenBytes, 0, 4);
+			System.out.println("4");
 			long len = HTSMsg.deserializeS64(lenBytes, 4);
+			System.out.println("5");
 			byte[] msg = new byte[(int)len];
+			System.out.println("6");
 			while (is.available() < len){
 				try {
-					Thread.sleep(0);
+					Thread.sleep(10);
 					//TODO check wait time, 100 was too long!
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
+			System.out.println("7");
 			is.read(msg, 0, (int) len);
+			System.out.println("8");
 			HTSMsg htsMsg = new HTSMsg(msg);
 			System.out.println("Server recived " + htsMsg);
 			handleHTSMsg(htsMsg);
+			System.out.println("9");
 			
 			return htsMsg; 
 		}
