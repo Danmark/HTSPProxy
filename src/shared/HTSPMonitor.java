@@ -23,8 +23,8 @@ public class HTSPMonitor {
 		servers = conf.getServers();
 		clients = new ArrayList<HTSPClient>();
 		this.chan = new TVChannels(this);
-		this.tags = new Tags();
-		this.events = new Events();
+		this.tags = new Tags(this);
+		this.events = new Events(this);
 		this.subscriptions = new Subscriptions();
 	}
 
@@ -50,7 +50,6 @@ public class HTSPMonitor {
 		return servers;
 	}
 	
-	
 	public synchronized void addChannel(long channelId, int clientId){
 		chan.add(channelId,clientId);
 	}
@@ -63,28 +62,28 @@ public class HTSPMonitor {
 		chan.remove(channelId,clientId);
 	}
 	
-	public synchronized void addTag(HTSMsg tag) {
-		tags.add(tag);		
+	public synchronized void addTag(long channelId, int clientId) {
+		tags.add(channelId,clientId);		
 	}
 	
-	public synchronized void updateTag(HTSMsg msg) {
-		tags.update(msg);
+	public synchronized void updateTag(long channelId, int clientId) {
+		tags.update(channelId,clientId);
 	}
 	
-	public synchronized void removeTag(HTSMsg msg) {
-		tags.remove(msg);
+	public synchronized void removeTag(long channelId, int clientId) {
+		tags.remove(channelId,clientId);
 	}
 	
-	public synchronized void addEvent(HTSMsg msg) {
-		events.add(msg);
+	public synchronized void addEvent(long eventId, int clientId) {
+		events.add(eventId,clientId);
 	}
 	
-	public synchronized void updateEvent(HTSMsg msg) {
-		events.update(msg);
+	public synchronized void updateEvent(long eventId, int clientId) {
+		events.update(eventId,clientId);
 	}
 	
-	public synchronized void removeEvent(HTSMsg msg) {
-		events.remove(msg);
+	public synchronized void removeEvent(long eventId, int clientId) {
+		events.remove(eventId,clientId);
 	}
 	
 	public synchronized HTSPClient getClient(int id){
@@ -95,13 +94,13 @@ public class HTSPMonitor {
 		this.server = server;
 	}
 
-	public synchronized HTSMsg getEvent(Long eventId) {
-		return events.get(eventId);
+	public synchronized HTSMsg getEvent(long eventId, int clientId) {
+		return events.get(eventId, clientId);
 	}
 
 	public synchronized Collection<HTSMsg> getAllTags() {
 		// TODO Auto-generated method stub
-		return tags.clone().getAll();
+		return tags.getAll();
 	}
 
 	public synchronized Collection<HTSMsg> getAllChannels() {

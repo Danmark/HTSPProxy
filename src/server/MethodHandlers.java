@@ -105,7 +105,6 @@ public class MethodHandlers {
 			}
 			//TODO (send dvr)
 			conn.send(new HTSMsg("initialSyncCompleted"));
-			//TODO start the asyncMetadataThread. (and implement dito)
 		} else{
 			System.out.println("Faulty request");
 		}
@@ -115,7 +114,8 @@ public class MethodHandlers {
 	public static void handleGetEventMethod(HTSMsg msg, HTSPServerConnection conn, HTSPMonitor monitor) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId"});
 		if (msg.keySet().containsAll(requiredFields)){
-			HTSMsg reply = monitor.getEvent((Long) msg.get("eventId"));
+			//TODO handle several clients!!
+			HTSMsg reply = monitor.getEvent((Long) msg.get("eventId"), 0);
 			if(reply==null){
 				reply = new HTSMsg();
 				reply.put("error", "Event does not exist");

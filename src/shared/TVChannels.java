@@ -57,26 +57,26 @@ public class TVChannels {
 		channels = new ArrayList<TVChannel>();
 	}
 	
-	public synchronized void add(long channelId, int serverId) {
-		channels.add(new TVChannel(channelId, serverId));
+	public synchronized void add(long channelId, int clientId) {
+		channels.add(new TVChannel(channelId, clientId));
 	}
 
-	public synchronized void update(long channelId, int serverId) {
+	public synchronized void update(long channelId, int clientId) {
 		//TODO send to clients with AsyncMetadata enabled
 	}
 
-	public synchronized void remove(long channelId, int serverId) {
+	public synchronized void remove(long channelId, int clientId) {
 		int i=0;
 		for(TVChannel chann:channels){
-			if(chann.getChannelId()==channelId && chann.getServerId()==serverId){
+			if(chann.getChannelId()==channelId && chann.getClientId()==clientId){
 				channels.remove(i++);
 			}
 		}
 				
 	}
 	
-	public synchronized HTSMsg get(long channelId, int serverId){
-		HTSMsg ret = monitor.getClient(serverId).getChannel(channelId);
+	public synchronized HTSMsg get(long channelId, int clientId){
+		HTSMsg ret = monitor.getClient(clientId).getChannel(channelId);
 		//TODO update ret.channelId and maybe eventId and nextEventId, and tags...
 		return ret;
 	}
@@ -84,7 +84,7 @@ public class TVChannels {
 	public Collection<HTSMsg> getAll(){
 		Collection<HTSMsg> ret = new ArrayList<HTSMsg>();
 		for(TVChannel channel:channels){
-			ret.add(get(channel.getChannelId(),channel.getServerId()));
+			ret.add(get(channel.getChannelId(),channel.getClientId()));
 		} 
 		return ret;
 	}
@@ -92,19 +92,19 @@ public class TVChannels {
 	private class TVChannel{
 
 		protected long channelId;
-		protected int serverId;
+		protected int clientId;
 
 		public TVChannel(long channelId, int serverId) {
 			this.channelId = channelId;
-			this.serverId = serverId;
+			this.clientId = serverId;
 		}
 
 		public long getChannelId() {
 			return channelId;
 		}
 		
-		public int getServerId() {
-			return serverId;
+		public int getClientId() {
+			return clientId;
 		}
 	}
 

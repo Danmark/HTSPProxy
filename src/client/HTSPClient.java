@@ -11,19 +11,19 @@ import shared.HTSPMonitor;
 
 
 public class HTSPClient extends Thread {
-	Socket socket;
-	BufferedOutputStream os;
-	BufferedInputStream is;
-	ClientTVChannels chan;
+	private Socket socket;
+	private BufferedOutputStream os;
+	private BufferedInputStream is;
+	private ClientTVChannels chan;
 	ServerInfo serverInfo;
+	private ClientTags tags;
 	ClientEvents events;
-	ClientSubscriptions subscriptions;
+	private ClientSubscriptions subscriptions;
 	HTSPMonitor monitor;
 	boolean waitingForReply;
 	
-	private int clientid;
+	private int clientId;
 
-	private ClientTags tags;
 		
 	private MagicSequence sequence;
 	
@@ -51,11 +51,11 @@ public class HTSPClient extends Thread {
 	}
 	
 	public void setClientid(int clientid) {
-		this.clientid = clientid;
+		this.clientId = clientid;
 	}
 	
-	public int getClientid() {
-		return clientid;
+	public int getClientId() {
+		return clientId;
 	}
 		
 	public void hello() throws IOException, InterruptedException{
@@ -210,7 +210,7 @@ public class HTSPClient extends Thread {
 		}
 		is.read(msg, 0, (int) len);
 		HTSMsg htsMsg = new HTSMsg(msg);
-		System.out.println("Client"+ clientid +" recived "+ htsMsg.get("method") + " " + htsMsg);
+		System.out.println("Client"+ clientId +" recived "+ htsMsg.get("method") + " " + htsMsg);
 		handleHTSMsg(htsMsg);
 		
 		return htsMsg; 
@@ -232,7 +232,7 @@ public class HTSPClient extends Thread {
 	private void handleServerToClientMethod(HTSMsg msg, String method) {
 		if(method.equals("channelAdd")){
 			long channelId = chan.add(msg);
-			monitor.addChannel(channelId, clientid);
+			monitor.addChannel(channelId, clientId);
 			Long eventId = (Long) msg.get("eventId");
 			Long nextEventId = (Long) msg.get("nextEventId");
 			try {
@@ -247,28 +247,28 @@ public class HTSPClient extends Thread {
 			
 		} else if(method.equals("channelUpdate")){
 			long channelId = chan.update(msg);
-			monitor.updateChannel(channelId, clientid);
+			monitor.updateChannel(channelId, clientId);
 		} else if (method.equals("channelDelete")){
 			long channelId = chan.remove(msg);
-			monitor.deleteChannel(channelId, clientid);
+			monitor.deleteChannel(channelId, clientId);
 		} else if (method.equals("tagAdd")) {
-			tags.add(msg);
-			monitor.addTag(msg);
+			long tagId = tags.add(msg);
+			monitor.addTag(tagId,clientId);
 		} else if (method.equals("tagUpdate")) {
-			tags.update(msg);
-			monitor.updateTag(msg);
+			long tagId = tags.update(msg);
+			monitor.updateTag(tagId,clientId);
 		} else if (method.equals("tagDelete")) {
-			tags.remove(msg);
-			monitor.removeTag(msg);
+			long tagId = tags.remove(msg);
+			monitor.removeTag(tagId,clientId);
 		} else if(method.equals("eventAdd")){
-			events.add(msg);
-			monitor.addEvent(msg);
+			long eventId = events.add(msg);
+			monitor.addEvent(eventId,clientId);
 		} else if(method.equals("eventUpdate")){
-			events.update(msg);
-			monitor.updateEvent(msg);
+			long eventId = events.update(msg);
+			monitor.updateEvent(eventId,clientId);
 		} else if(method.equals("eventDeleted")){
-			events.remove(msg);
-			monitor.removeEvent(msg);
+			long eventId = events.remove(msg);
+			monitor.removeEvent(eventId,clientId);
 		} else if(method.equals("initialSyncCompleted")){
 			//TODO do something maybe.
 		} else if(method.equals("subscriptionStart")){
@@ -327,6 +327,14 @@ public class HTSPClient extends Thread {
 	
 	public HTSMsg getChannel(long channelId){
 		return chan.getChannel(channelId);
+	}
+	
+	public HTSMsg getTag(long tagId){
+		return tags.getTag(tagId);
+	}
+	
+	public HTSMsg getEvent(long eventId){
+		return events.getEvent(eventId);
 	}
 
 	public void run(){

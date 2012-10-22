@@ -116,11 +116,13 @@ public class ClientEvents {
 		events = new HashMap<Long,HTSMsg>();
 	}
 	
-	public synchronized void add(HTSMsg msg) {
+	public synchronized long add(HTSMsg msg) {
 		events.put(((Number)msg.get(EVENTID)).longValue(), msg);
+		return ((Number)msg.get(EVENTID)).longValue();
+
 	}
 
-	public void update(HTSMsg msg) {
+	public synchronized long update(HTSMsg msg) {
 		HTSMsg chann = events.get(((Number)msg.get(EVENTID)).longValue());			
 		
 		for (String name : msg.keySet()){
@@ -133,11 +135,18 @@ public class ClientEvents {
 			else{
 				System.out.println("N.B. Unrecognized field: " + name);
 			}
-		}				
+		}
+		return ((Number)msg.get(EVENTID)).longValue();
+
 	}
 
-	public void remove(HTSMsg msg) {
-		events.remove(((Number)msg.get(EVENTID)).longValue());		
+	public synchronized long remove(HTSMsg msg) {
+		events.remove(((Number)msg.get(EVENTID)).longValue());
+		return ((Number)msg.get(EVENTID)).longValue();
+	}
+	
+	public synchronized HTSMsg getEvent(long eventId){
+		return events.get(eventId);
 	}
 
 }

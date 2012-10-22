@@ -1,8 +1,7 @@
 package shared;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class Events {
 	/**
@@ -108,38 +107,64 @@ public class Events {
 
 	public static final String[] HTSMsgFields = {EVENTID,CHANNELID,START,STOP,TITLE,SUMMARY,DESCRIPTION,SERIERLINKID,EPISODEID,SEASONID,BRANDID,CONTENTTYPE,AGERATING,STARRATING,FIRSTAIRED,SEASONNUMBER,SEASONCOUNT,EPISODENUMBER,EPISODECOUNT,PARTNUMBER,PARTCOUNT,EPISODEONSCREEN,IMAGE,DVRID,NEXTEVENTID};
 	
-	private Map<Long, HTSMsg> events;
-	
-	public Events(){
-		events = new HashMap<Long,HTSMsg>();
-	}
-	
-	public void add(HTSMsg msg) {
-		events.put(((Number)msg.get(EVENTID)).longValue(), msg);
+	private ArrayList<Event> events;
+	private HTSPMonitor monitor;
+
+	public Events(HTSPMonitor monitor){
+		this.monitor=monitor;
+		events = new ArrayList<Event>();
 	}
 
-	public void update(HTSMsg msg) {
-		HTSMsg chann = events.get(((Number)msg.get(EVENTID)).longValue());			
-		
-		for (String name : msg.keySet()){
-			if (Arrays.asList(HTSMsgFields).contains(name)){
-				chann.put(name, msg.get(name));
-			}
-			else if (name.equals("method")){
-				//This is normal, do nothing...
-			}
-			else{
-				System.out.println("N.B. Unrecognized field: " + name);
-			}
-		}				
+	public synchronized void add(long eventId, int clientId) {
+		events.add(new Event(eventId, clientId));
 	}
 
-	public void remove(HTSMsg msg) {
-		events.remove(((Number)msg.get(EVENTID)).longValue());		
+	public synchronized void update(long eventlId, int clientId) {
+		//TODO send to clients with AsyncMetadata enabled
 	}
-	
-	public synchronized HTSMsg get(long eventId){
-		return events.get(eventId);
+
+	public synchronized void remove(long eventId, int clientId) {
+		int i=0;
+		for(Event event:events){
+			if(event.getEventId()==eventId && event.getClientId()==clientId){
+				events.remove(i++);
+			}
+		}
+
+	}
+
+	public synchronized HTSMsg get(long eventId, int clientId){
+		HTSMsg ret = monitor.getClient(clientId).getTag(eventId);
+		//TODO update ret.channelId and maybe eventId and nextEventId, and tags...
+		return ret;
+	}
+
+	public Collection<HTSMsg> getAll(){
+		Collection<HTSMsg> ret = new ArrayList<HTSMsg>();
+		for(Event event:events){
+			ret.add(get(event.getEventId(),event.getClientId()));
+		} 
+		return ret;
+	}
+
+	private class Event{
+
+		protected long eventId;
+		protected int clientId;
+
+		public Event(long eventId, int clientId) {
+			this.eventId = eventId;
+			this.clientId = clientId;
+		}
+
+		public long getEventId() {
+			return eventId;
+		}
+
+		public int getClientId() {
+			return clientId;
+		}
 	}
 
 }
+

@@ -100,8 +100,8 @@ public class ReplyHandlers {
 	public static void handleGetEventReply(HTSMsg msg, HTSPClient client) {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId","channelId","start","stop"});
 		if (msg.keySet().containsAll(requiredFields)){
-			client.events.add(msg);
-			client.monitor.addEvent(msg);
+			long eventId = client.events.add(msg);
+			client.monitor.addEvent(eventId,client.getClientId());
 		} else if (msg.get("error") != null){
 			//TODO
 		} else{

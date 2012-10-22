@@ -43,16 +43,18 @@ public class ClientTags {
 	/**
 	 * Adds a channel.
 	 * @param msg
+	 * @return 
 	 */
-	public void add(HTSMsg msg){
+	public long add(HTSMsg msg){
 		tags.put(((Number)msg.get(TAGID)).longValue(), msg);
+		return ((Number)msg.get(TAGID)).longValue();
 	}
 	
 	/**
 	 * Updates a channel.
 	 * @param reply
 	 */
-	public void update(HTSMsg msg) {
+	public long update(HTSMsg msg) {
 		HTSMsg chann = tags.get(((Number)msg.get(TAGID)).longValue());			
 		
 		for (String name : msg.keySet()){
@@ -65,10 +67,16 @@ public class ClientTags {
 			else{
 				System.out.println("N.B. Unrecognized field: " + name);
 			}
-		}		
+		}
+		return ((Number)msg.get(TAGID)).longValue();
 	}
 	
-	public void remove(HTSMsg msg){
+	public long remove(HTSMsg msg){
 		tags.remove(((Number)msg.get(TAGID)).longValue());
+		return ((Number)msg.get(TAGID)).longValue();
+	}
+	
+	public synchronized HTSMsg getTag(long tagId){
+		return tags.get(tagId);
 	}
 }
