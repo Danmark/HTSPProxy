@@ -77,6 +77,12 @@ public class ClientTags {
 	}
 	
 	public synchronized HTSMsg getTag(long tagId){
-		return tags.get(tagId);
+		HTSMsg ret = tags.get(tagId);
+		if (ret != null){
+			return ret.clone();		
+		} else {
+			return ret;
+		}
+		
 	}
 }

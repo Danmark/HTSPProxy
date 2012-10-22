@@ -146,7 +146,7 @@ public class ClientEvents {
 	}
 	
 	public synchronized HTSMsg getEvent(long eventId){
-		return events.get(eventId);
+		return events.get(eventId).clone();
 	}
 
 }

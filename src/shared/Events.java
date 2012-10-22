@@ -134,7 +134,7 @@ public class Events {
 	}
 
 	public synchronized HTSMsg get(long eventId, int clientId){
-		HTSMsg ret = monitor.getClient(clientId).getTag(eventId);
+		HTSMsg ret = monitor.getClient(clientId).getEvent(eventId);
 		//TODO update ret.channelId and maybe eventId and nextEventId, and tags...
 		return ret;
 	}

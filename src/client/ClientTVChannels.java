@@ -153,6 +153,6 @@ public class ClientTVChannels {
 	}
 	
 	public synchronized HTSMsg getChannel(long channelId){
-		return channels.get(channelId);
+		return channels.get(channelId).clone();
 	}
 }

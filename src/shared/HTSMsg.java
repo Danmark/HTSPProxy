@@ -80,7 +80,7 @@ public class HTSMsg {
 	}
 
 	public byte[] serialize() throws IOException{
-		int length = 0; //TODO set a proper length
+		int length;
 		byte[] msgByteArray;
 		if (isSerialized){
 			length =  htsMsg.length;
@@ -118,8 +118,13 @@ public class HTSMsg {
 		byte[] data;
 		switch (type) {
 		case HMF_MAP:
-			// TODO: get the data from the map
-			data = new byte[0];
+			HTSMsg dataMapMsg = new HTSMsg();
+			for(Entry<String, Object> e : ((Map<String, Object>) value).entrySet()){
+				dataMapMsg.put(e.getKey(),e.getValue());
+			}
+			data = dataMapMsg.serialize();
+			data = Arrays.copyOfRange(data, 4, data.length+1);
+			//TODO this hack is so ugly!! fix it!
 			break;
 
 		case HMF_S64:
@@ -156,7 +161,7 @@ public class HTSMsg {
 				dataMsg.put("",o);
 			}
 			data = dataMsg.serialize();
-			data = Arrays.copyOfRange(data, 4, data.length+1);
+			data = Arrays.copyOfRange(data, 4, data.length);
 			//TODO this hack is so ugly!! fix it!
 			break;
 		default:
@@ -239,9 +244,9 @@ public class HTSMsg {
 			if (data.equals(null)) {
 				System.out.println("datan Šr null. " + name);				
 			}
-			//			if (name.equals("error")){
-			//				System.out.println(data);
-			//			}
+//			if (name.equals("error")){
+//				System.out.println(data);
+//			}
 
 			i+=dataLength;			
 		}
@@ -260,9 +265,7 @@ public class HTSMsg {
 		try {
 			return new String(ByteBuffer.wrap(dataBytes, 0, (int)dataLength).array(), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return "";
+			return new String(ByteBuffer.wrap(dataBytes, 0, (int)dataLength).array());
 		}		
 	}
 

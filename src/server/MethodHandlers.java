@@ -87,21 +87,15 @@ public class MethodHandlers {
 			handleExtraFields(msg,reply);
 			conn.send(reply);
 			for(HTSMsg tag:monitor.getAllTags()){
-				Object members = tag.remove("members");
+				tag.remove("members");
 				conn.send(tag);
-				tag.put("members",members);
 			}
 			for (HTSMsg channel:monitor.getAllChannels()){
-				Object eventId = channel.remove("eventId");
-				Object nextEventId = channel.remove("nextEventId");
 				conn.send(channel);
-				channel.put("eventId", eventId);
-				channel.put("nextEventId", nextEventId);
 			}
 			for(HTSMsg tag:monitor.getAllTags()){
 				tag.put("method", "tagUpdate");
 				conn.send(tag);
-				tag.put("method", "tagAdd");
 			}
 			//TODO (send dvr)
 			conn.send(new HTSMsg("initialSyncCompleted"));
@@ -115,7 +109,7 @@ public class MethodHandlers {
 		Collection<String> requiredFields = Arrays.asList(new String[]{"eventId"});
 		if (msg.keySet().containsAll(requiredFields)){
 			//TODO handle several clients!!
-			HTSMsg reply = monitor.getEvent((Long) msg.get("eventId"), 0);
+			HTSMsg reply = monitor.getEvent((Long) msg.get("eventId"), monitor.getClient(0).getClientId());
 			if(reply==null){
 				reply = new HTSMsg();
 				reply.put("error", "Event does not exist");
