@@ -183,4 +183,9 @@ public class ServerInfo {
 			throw new RuntimeException("Could not generate digest", e);
 		}
 	}
+
+	public Object getServerId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

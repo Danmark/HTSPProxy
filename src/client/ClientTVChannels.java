@@ -62,15 +62,16 @@ public class ClientTVChannels {
 	 * Adds a channel.
 	 * @param msg
 	 */
-	public void add(HTSMsg msg){
+	public long add(HTSMsg msg){
 		channels.put(((Number)msg.get(CHANNELID)).longValue(), msg);
+		return ((Number) msg.get(CHANNELID)).longValue();
 	}
 	
 	/**
 	 * Updates a channel.
 	 * @param reply
 	 */
-	public void update(HTSMsg msg) {
+	public long update(HTSMsg msg) {
 		HTSMsg chann = channels.get(((Number)msg.get(CHANNELID)).longValue());			
 		
 		for (String name : msg.keySet()){
@@ -83,11 +84,13 @@ public class ClientTVChannels {
 			else{
 				System.out.println("N.B. Unrecognized field: " + name);
 			}
-		}		
+		}
+		return ((Number) msg.get(CHANNELID)).longValue();
 	}
 	
-	public void remove(HTSMsg msg){
+	public long remove(HTSMsg msg){
 		channels.remove(((Number)msg.get(CHANNELID)).intValue());
+		return ((Number) msg.get(CHANNELID)).longValue();
 	}
 	
 /*	channelId          u32   required   ID of channel.
@@ -147,5 +150,9 @@ public class ClientTVChannels {
 	public HTSMsg[] getServices(long channelId){
 		HTSMsg[] ret = (HTSMsg[])channels.get(channelId).get(SERVICES);
 		return ret;
+	}
+	
+	public synchronized HTSMsg getChannel(long channelId){
+		return channels.get(channelId);
 	}
 }

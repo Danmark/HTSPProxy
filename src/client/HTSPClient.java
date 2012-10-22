@@ -231,8 +231,8 @@ public class HTSPClient extends Thread {
 	
 	private void handleServerToClientMethod(HTSMsg msg, String method) {
 		if(method.equals("channelAdd")){
-			chan.add(msg);
-			monitor.addChannel(msg);
+			long channelId = chan.add(msg);
+			monitor.addChannel(channelId, clientid);
 			Long eventId = (Long) msg.get("eventId");
 			Long nextEventId = (Long) msg.get("nextEventId");
 			try {
@@ -246,11 +246,11 @@ public class HTSPClient extends Thread {
 			}
 			
 		} else if(method.equals("channelUpdate")){
-			chan.update(msg);
-			monitor.updateChannel(msg);
+			long channelId = chan.update(msg);
+			monitor.updateChannel(channelId, clientid);
 		} else if (method.equals("channelDelete")){
-			chan.remove(msg);
-			monitor.deleteChannel(msg);
+			long channelId = chan.remove(msg);
+			monitor.deleteChannel(channelId, clientid);
 		} else if (method.equals("tagAdd")) {
 			tags.add(msg);
 			monitor.addTag(msg);
@@ -323,6 +323,10 @@ public class HTSPClient extends Thread {
 			System.out.println("unimplemented reply: " + method);
 		}
 		sequence.giveBack(seq);
+	}
+	
+	public HTSMsg getChannel(long channelId){
+		return chan.getChannel(channelId);
 	}
 
 	public void run(){

@@ -1,8 +1,7 @@
 package shared;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 
 
@@ -50,49 +49,63 @@ public class TVChannels {
 	
 	public static final String[] HTSMsgFields = {CHANNELID,CHANNELNUMBER,CHANNELNAME,CHANNELICON,EVENTID,NEXTEVENTID,TAGS,SERVICES};
 
-	private HashMap<Long,HTSMsg> channels;
+	private ArrayList<TVChannel> channels;
+	private HTSPMonitor monitor;
 	
-	public TVChannels(){
-		channels = new HashMap<Long,HTSMsg>();
+	public TVChannels(HTSPMonitor monitor){
+		this.monitor=monitor;
+		channels = new ArrayList<TVChannel>();
 	}
 	
-	public synchronized void add(HTSMsg msg) {
-		channels.put(((Number)msg.get(CHANNELID)).longValue(), msg);
+	public synchronized void add(long channelId, int serverId) {
+		channels.add(new TVChannel(channelId, serverId));
 	}
 
-	public synchronized void update(HTSMsg msg) {
-		HTSMsg chann = channels.get(((Number)msg.get(CHANNELID)).longValue());			
-		
-		for (String name : msg.keySet()){
-			if (Arrays.asList(HTSMsgFields).contains(name)){
-				chann.put(name, msg.get(name));
-			}
-			else if (name.equals("method")){
-				//This is normal, do nothing...
-			}
-			else{
-				System.out.println("N.B. Unrecognized field: " + name);
-			}
-		}				
+	public synchronized void update(long channelId, int serverId) {
+		//TODO send to clients with AsyncMetadata enabled
 	}
 
-	public synchronized void remove(HTSMsg msg) {
-		channels.remove(((Number)msg.get(CHANNELID)).intValue());		
+	public synchronized void remove(long channelId, int serverId) {
+		int i=0;
+		for(TVChannel chann:channels){
+			if(chann.getChannelId()==channelId && chann.getServerId()==serverId){
+				channels.remove(i++);
+			}
+		}
+				
 	}
 	
-	public synchronized HTSMsg get(long channelId){
-		return channels.get(channelId);
-	}
-	
-	public synchronized Collection<HTSMsg> getAll(){
-		return channels.values();
-	}
-	
-	public TVChannels clone(){
-		TVChannels ret =  new TVChannels();
-		ret.channels = (HashMap<Long, HTSMsg>) channels.clone();
+	public synchronized HTSMsg get(long channelId, int serverId){
+		HTSMsg ret = monitor.getClient(serverId).getChannel(channelId);
+		//TODO update ret.channelId and maybe eventId and nextEventId, and tags...
 		return ret;
 	}
 	
+	public Collection<HTSMsg> getAll(){
+		Collection<HTSMsg> ret = new ArrayList<HTSMsg>();
+		for(TVChannel channel:channels){
+			ret.add(get(channel.getChannelId(),channel.getServerId()));
+		} 
+		return ret;
+	}
+	
+	private class TVChannel{
+
+		protected long channelId;
+		protected int serverId;
+
+		public TVChannel(long channelId, int serverId) {
+			this.channelId = channelId;
+			this.serverId = serverId;
+		}
+
+		public long getChannelId() {
+			return channelId;
+		}
+		
+		public int getServerId() {
+			return serverId;
+		}
+	}
 
 }

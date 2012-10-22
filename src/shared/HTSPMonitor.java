@@ -22,7 +22,7 @@ public class HTSPMonitor {
 		Config conf = new Config();
 		servers = conf.getServers();
 		clients = new ArrayList<HTSPClient>();
-		this.chan = new TVChannels();
+		this.chan = new TVChannels(this);
 		this.tags = new Tags();
 		this.events = new Events();
 		this.subscriptions = new Subscriptions();
@@ -51,17 +51,18 @@ public class HTSPMonitor {
 	}
 	
 	
-	public synchronized void addChannel(HTSMsg channel){
-		chan.add(channel);
+	public synchronized void addChannel(long channelId, int clientId){
+		chan.add(channelId,clientId);
+	}
+
+	public synchronized void updateChannel(long channelId, int clientId) {
+		chan.update(channelId,clientId);
 	}
 	
-	public synchronized void updateChannel(HTSMsg msg) {
-		chan.update(msg);
+	public synchronized void deleteChannel(long channelId, int clientId) {
+		chan.remove(channelId,clientId);
 	}
 	
-	public synchronized void deleteChannel(HTSMsg msg) {
-		chan.remove(msg);
-	}
 	public synchronized void addTag(HTSMsg tag) {
 		tags.add(tag);		
 	}
@@ -105,7 +106,7 @@ public class HTSPMonitor {
 
 	public synchronized Collection<HTSMsg> getAllChannels() {
 		// TODO Auto-generated method stub
-		return chan.clone().getAll();
+		return chan.getAll();
 	}
 
 
