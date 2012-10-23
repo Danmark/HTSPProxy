@@ -16,8 +16,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import client.ServerInfo;
-import client.ServerInfo.Builder;
+import client.ClientInfo;
+import client.ClientInfo.Builder;
 
 public class Config {
 	private Document doc;
@@ -42,22 +42,22 @@ public class Config {
 		doc.getDocumentElement().normalize();
 	}
 	
-	public List<ServerInfo> getServers(){
-		List<ServerInfo> list = new ArrayList<ServerInfo>();
+	public List<ClientInfo> getServers(){
+		List<ClientInfo> list = new ArrayList<ClientInfo>();
 		NodeList nodeList = doc.getElementsByTagName("server");
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node n = nodeList.item(i);
 			
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element e = (Element) n;
-				Builder serverInfoBuilder = new ServerInfo.Builder(e.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue());
+				Builder serverInfoBuilder = new ClientInfo.Builder(e.getElementsByTagName("name").item(0).getChildNodes().item(0).getNodeValue());
 				serverInfoBuilder.ip(e.getElementsByTagName("ip").item(0).getChildNodes().item(0).getNodeValue());
 				serverInfoBuilder.port(Integer.parseInt(e.getElementsByTagName("port").item(0).getChildNodes().item(0).getNodeValue()));
 				serverInfoBuilder.username(e.getElementsByTagName("username").item(0).getChildNodes().item(0).getNodeValue());
 				serverInfoBuilder.password(e.getElementsByTagName("password").item(0).getChildNodes().item(0).getNodeValue());
 				//TODO check if they exist etc.
 				
-				ServerInfo serverInfo = serverInfoBuilder.build();
+				ClientInfo serverInfo = serverInfoBuilder.build();
 				list.add(serverInfo);
 			}			
 		}

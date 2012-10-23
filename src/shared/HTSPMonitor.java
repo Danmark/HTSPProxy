@@ -1,31 +1,36 @@
 package shared;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import server.HTSPServer;
+import server.HTSPServer.HTSPServerConnection;
 
 import client.HTSPClient;
-import client.ServerInfo;
+import client.ClientInfo;
 
 public class HTSPMonitor {
-	List<ServerInfo> servers;
+	List<ClientInfo> servers;
 	List<HTSPClient> clients;
+	List<HTSPServerConnection> serverConnections;
 	TVChannels chan;
 	Tags tags;
 	Events events;
 	Subscriptions subscriptions;
-	HTSPServer server;
+	
+	private HTSPServer server;
 	
 	public HTSPMonitor(){
 		Config conf = new Config();
 		servers = conf.getServers();
 		clients = new ArrayList<HTSPClient>();
+		serverConnections = new ArrayList<HTSPServerConnection>();
 		this.chan = new TVChannels(this);
 		this.tags = new Tags(this);
 		this.events = new Events(this);
-		this.subscriptions = new Subscriptions();
+		this.subscriptions = new Subscriptions(this);
 	}
 
 	/**
@@ -46,7 +51,7 @@ public class HTSPMonitor {
 		return clients.get(index);
 	}
 
-	public synchronized List<ServerInfo> getServers() {
+	public synchronized List<ClientInfo> getServers() {
 		return servers;
 	}
 	
@@ -99,13 +104,91 @@ public class HTSPMonitor {
 	}
 
 	public synchronized Collection<HTSMsg> getAllTags() {
-		// TODO Auto-generated method stub
 		return tags.getAll();
 	}
 
 	public synchronized Collection<HTSMsg> getAllChannels() {
-		// TODO Auto-generated method stub
 		return chan.getAll();
+	}
+
+	public HTSPServer getServer() {
+		return server;
+	}
+
+	public void subscribe(HTSMsg msg, HTSPServerConnection conn) throws IOException {
+		int clientId=0;
+		//TODO handle multiple clients
+		getHTSPClient(clientId).subscribe((Long)msg.get("channelId"), (Long)msg.get("subscriptionId"));
+		subscriptions.add((Long)msg.get("channelId"),clientId,(Long)msg.get("subscriptionId"),conn.getServerConnectionId());
+	}
+	
+	public void startSubscription(HTSMsg msg, int clientId) {
+		// TODO Auto-generated method stub
+		try {
+			subscriptions.start(msg, clientId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void stopSubscription(HTSMsg msg, int clientId) {
+		// TODO Auto-generated method stub
+		try {
+			subscriptions.stop(msg, clientId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void subscriptionMuxpkt(HTSMsg msg, int clientId) {
+		// TODO Auto-generated method stub
+		try {
+			subscriptions.muxpkt(msg, clientId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void subscriptionQueueStatus(HTSMsg msg, int clientId) {
+		// TODO Auto-generated method stub
+		try {
+			subscriptions.queueStatus(msg, clientId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void subscriptionSignalStatus(HTSMsg msg, int clientId) {
+		// TODO Auto-generated method stub
+		try {
+			subscriptions.signalStatus(msg, clientId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void subscriptionStatus(HTSMsg msg, int clientId) {
+		// TODO Auto-generated method stub
+		try {
+			subscriptions.status(msg, clientId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public HTSPServerConnection getServerConnection(int serverConnectionId) {
+		return serverConnections.get(serverConnectionId);
+	}
+
+	public void addServerConnection(HTSPServerConnection serverConnection) {
+		serverConnections.add(serverConnection);
+		
 	}
 
 

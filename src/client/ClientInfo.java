@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Holds information about a server.
  */
-public class ServerInfo {
+public class ClientInfo {
 	final static int STANDARD_PORT = 9982;
 	final static String STANDARD_IP = "localhost";
 
@@ -57,13 +57,13 @@ public class ServerInfo {
 			this.password=password;
 			return this;
 		}
-		public ServerInfo build(){
-			return new ServerInfo(this);
+		public ClientInfo build(){
+			return new ClientInfo(this);
 		}
 		
 	}
 		
-	private ServerInfo(Builder builder) {
+	private ClientInfo(Builder builder) {
 		this.name = builder.name;
 		this.ip = builder.ip;
 		this.port = builder.port;
@@ -182,10 +182,5 @@ public class ServerInfo {
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("Could not generate digest", e);
 		}
-	}
-
-	public Object getServerId() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

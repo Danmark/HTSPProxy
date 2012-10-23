@@ -1,35 +1,41 @@
 package client;
 
 import shared.HTSMsg;
+import shared.HTSPMonitor;
 
 public class ClientSubscriptions {
+	private HTSPMonitor monitor;
+	
+	ClientSubscriptions(HTSPMonitor monitor){
+		this.monitor = monitor;
+	}
 
-	public void start(HTSMsg reply) {
+	public void start(HTSMsg msg) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void stop(HTSMsg msg) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void stop(HTSMsg reply) {
+	public void status(HTSMsg msg) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void status(HTSMsg reply) {
+	public void queueStatus(HTSMsg msg) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void queueStatus(HTSMsg reply) {
+	public void signalStatus(HTSMsg msg) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void signalStatus(HTSMsg reply) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void muxpkt(HTSMsg reply) {
+	public void muxpkt(HTSMsg msg) {
 		// TODO Auto-generated method stub
 		
 	}

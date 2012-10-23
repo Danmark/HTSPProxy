@@ -39,8 +39,10 @@ public class HTSPServer extends Thread{
 	public class HTSPServerConnection extends Thread{
 		private InputStream is;
 		private BufferedOutputStream os;
-		public HTSPServerConnection(Socket socket, HTSPServer server) {
-			
+		private int serverConnectionId;
+		
+		public HTSPServerConnection(Socket socket, HTSPServer server, int serverConnectionId) {
+			this.serverConnectionId = serverConnectionId;
 			try {
 				this.is = socket.getInputStream();
 				this.os = new BufferedOutputStream(socket.getOutputStream());
@@ -72,7 +74,7 @@ public class HTSPServer extends Thread{
 			}
 			is.read(msg, 0, (int) len);
 			HTSMsg htsMsg = new HTSMsg(msg);
-			System.out.println("Server recived " + htsMsg.get("method") + " " + htsMsg);
+//			System.out.println("Server recived " + htsMsg.get("method") + " " + htsMsg);
 			handleHTSMsg(htsMsg);
 			
 			return htsMsg; 
@@ -81,7 +83,7 @@ public class HTSPServer extends Thread{
 		public void send(HTSMsg msg) throws IOException{
 			
 			byte[] bytes = msg.serialize();
-			System.out.println("Server Sending " + msg.get("method") + " " + msg);
+//			System.outx.println("Server Sending " + msg.get("method") + " " + msg);
 			os.write(bytes);
 			os.flush();
 		}
@@ -113,7 +115,7 @@ public class HTSPServer extends Thread{
 			} else if(method.equals("getTicket")){
 				MethodHandlers.handleGetTicketMethod(msg,this);
 			} else if(method.equals("subscribe")){
-				MethodHandlers.handleSubscribeMethod(msg,this);
+				MethodHandlers.handleSubscribeMethod(msg,this,monitor);
 			} else if(method.equals("unsubscribe")){
 				MethodHandlers.handleUnsubscribeMethod(msg,this);
 			} else if(method.equals("subscriptionChangeWeight")){
@@ -121,6 +123,10 @@ public class HTSPServer extends Thread{
 			} else{
 				System.out.println("unimplemented reply: " + method);
 			}
+		}
+
+		public int getServerConnectionId() {
+			return serverConnectionId;
 		}
 		
 		public void run(){
@@ -144,12 +150,16 @@ public class HTSPServer extends Thread{
 					}
 				}
 		}
+
 	}
 	
 	public void run(){
+		int i=0;
 		while(true){
 			try {
-				new HTSPServerConnection(serverSocket.accept(), this).start();
+				HTSPServerConnection sc = new HTSPServerConnection(serverSocket.accept(), this,i++);
+				monitor.addServerConnection(sc);
+				sc.start();
 			} catch (SocketException e) {
 				System.out.println("Client disconnected...");
 			} catch (IOException e){

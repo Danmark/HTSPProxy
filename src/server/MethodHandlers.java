@@ -177,12 +177,13 @@ public class MethodHandlers {
 
 	}
 
-	public static void handleSubscribeMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
+	public static void handleSubscribeMethod(HTSMsg msg, HTSPServerConnection conn, HTSPMonitor monitor) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
 			HTSMsg reply = new HTSMsg();
 			handleExtraFields(msg,reply);
-			//TODO
+			monitor.subscribe(msg,conn);
+			//TODO handle several clients!
 			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");

@@ -15,7 +15,7 @@ public class HTSPClient extends Thread {
 	private BufferedOutputStream os;
 	private BufferedInputStream is;
 	private ClientTVChannels chan;
-	ServerInfo serverInfo;
+	ClientInfo serverInfo;
 	private ClientTags tags;
 	ClientEvents events;
 	private ClientSubscriptions subscriptions;
@@ -27,13 +27,13 @@ public class HTSPClient extends Thread {
 		
 	private MagicSequence sequence;
 	
-	public HTSPClient(ServerInfo serverInfo, HTSPMonitor monitor){
+	public HTSPClient(ClientInfo serverInfo, HTSPMonitor monitor){
 		this.serverInfo = serverInfo;
 		this.monitor=monitor;
 		this.chan = new ClientTVChannels();
 		this.tags = new ClientTags();
 		this.events = new ClientEvents();
-		this.subscriptions = new ClientSubscriptions();
+		this.subscriptions = new ClientSubscriptions(monitor);
 		this.sequence = new MagicSequence();
 		
 		try {
@@ -153,12 +153,11 @@ public class HTSPClient extends Thread {
 		send(msg);
 	}
 	
-	public void subscribe(long channelId, long subscriptionId, long weight) throws IOException{
+	public void subscribe(long channelId, long subscriptionId) throws IOException{
 		String method="subscribe";
 		HTSMsg msg = new HTSMsg(method);
 		msg.put("channelId", channelId);
 		msg.put("subscriptionId", subscriptionId);
-		msg.put("weight", weight);
 		msg.put("seq", sequence.pop(method));
 		send(msg);
 	}
@@ -183,7 +182,7 @@ public class HTSPClient extends Thread {
 	
 	private void send(HTSMsg msg) throws IOException{
 		byte[] bytes = msg.serialize();
-		System.out.println("Sending " + msg.get("method") + " " + msg);
+//		System.out.println("Sending " + msg.get("method") + " " + msg);
 		os.write(bytes);
 		os.flush();
 	}
@@ -210,7 +209,7 @@ public class HTSPClient extends Thread {
 		}
 		is.read(msg, 0, (int) len);
 		HTSMsg htsMsg = new HTSMsg(msg);
-		System.out.println("Client"+ clientId +" recived "+ htsMsg.get("method") + " " + htsMsg);
+//		System.out.println("Client"+ clientId +" recived "+ htsMsg.get("method") + " " + htsMsg);
 		handleHTSMsg(htsMsg);
 		
 		return htsMsg; 
@@ -273,16 +272,22 @@ public class HTSPClient extends Thread {
 			//TODO do something maybe.
 		} else if(method.equals("subscriptionStart")){
 			subscriptions.start(msg);
+			monitor.startSubscription(msg, clientId);
 		} else if(method.equals("subscriptionStop")){
 			subscriptions.stop(msg);
+			monitor.stopSubscription(msg, clientId);
 		} else if(method.equals("subscriptionStatus")){
 			subscriptions.status(msg);
+			monitor.subscriptionStatus(msg, clientId);
 		} else if(method.equals("queueStatus")){
 			subscriptions.queueStatus(msg);
+			monitor.subscriptionQueueStatus(msg, clientId);
 		} else if(method.equals("signalStatus")){
 			subscriptions.signalStatus(msg);
+			monitor.subscriptionSignalStatus(msg, clientId);
 		} else if(method.equals("muxpkt")){
 			subscriptions.muxpkt(msg);
+			monitor.subscriptionMuxpkt(msg, clientId);
 		} else{
 			System.out.println("unimplemented ServerToClient-method: " + method);
 			//TODO something is wrong. Do something about it.

@@ -4,7 +4,7 @@ import java.io.IOException;
 import server.HTSPServer;
 import shared.HTSPMonitor;
 import client.HTSPClient;
-import client.ServerInfo;
+import client.ClientInfo;
 
 
 public class HTSPProxy {
@@ -23,7 +23,7 @@ public class HTSPProxy {
 		server.start();
 		
 		int clientid = 0;
-		for (ServerInfo serverInfo : monitor.getServers()) {
+		for (ClientInfo serverInfo : monitor.getServers()) {
 			HTSPClient client = new HTSPClient(serverInfo, monitor);
 			client.setClientid(clientid++);
 			monitor.addHTSPClient(client);
