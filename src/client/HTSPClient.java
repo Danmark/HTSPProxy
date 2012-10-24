@@ -182,7 +182,7 @@ public class HTSPClient extends Thread {
 	
 	private void send(HTSMsg msg) throws IOException{
 		byte[] bytes = msg.serialize();
-//		System.out.println("Sending " + msg.get("method") + " " + msg);
+		System.out.println("Sending " + msg.get("method") + " " + msg);
 		os.write(bytes);
 		os.flush();
 	}
@@ -209,7 +209,7 @@ public class HTSPClient extends Thread {
 		}
 		is.read(msg, 0, (int) len);
 		HTSMsg htsMsg = new HTSMsg(msg);
-//		System.out.println("Client"+ clientId +" recived "+ htsMsg.get("method") + " " + htsMsg);
+		System.out.println("Client"+ clientId +" recived "+ htsMsg.get("method") + " " + htsMsg);
 		handleHTSMsg(htsMsg);
 		
 		return htsMsg; 

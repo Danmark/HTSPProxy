@@ -16,7 +16,7 @@ import client.HTSPClient;
 
 
 public class HTSPServer extends Thread{
-	
+
 	ServerSocket serverSocket;
 	List<Socket> sockets;
 	List<HTSPClient> clients;
@@ -24,10 +24,10 @@ public class HTSPServer extends Thread{
 	BufferedInputStream is;
 
 	HTSPMonitor monitor;
-	
+
 	public HTSPServer(int port, HTSPMonitor monitor){
 		this.monitor = monitor;
-		
+
 		try {
 			serverSocket = new ServerSocket(port);
 		} catch (IOException e) {
@@ -35,12 +35,13 @@ public class HTSPServer extends Thread{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public class HTSPServerConnection extends Thread{
 		private BufferedInputStream is;
 		private BufferedOutputStream os;
 		private int serverConnectionId;
-		
+		private boolean isRunning;
+
 		public HTSPServerConnection(Socket socket, HTSPServer server, int serverConnectionId) {
 			this.serverConnectionId = serverConnectionId;
 			try {
@@ -51,12 +52,12 @@ public class HTSPServer extends Thread{
 				e.printStackTrace();
 			}
 		}
-		
+
 		public HTSMsg rcv() throws IOException{
 			byte[] lenBytes = new byte[4];
 			while (is.available() < 4) {
 				try {
-					Thread.sleep(10);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 				}
 			}
@@ -65,7 +66,7 @@ public class HTSPServer extends Thread{
 			byte[] msg = new byte[(int)len];
 			while (is.available() < len){
 				try {
-					Thread.sleep(10);
+					Thread.sleep(1);
 					//TODO check wait time, 100 was too long!
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -74,25 +75,26 @@ public class HTSPServer extends Thread{
 			}
 			is.read(msg, 0, (int) len);
 			HTSMsg htsMsg = new HTSMsg(msg);
-//			System.out.println("Server recived " + htsMsg.get("method") + " " + htsMsg);
+			System.out.println("Server"+serverConnectionId+" recived " + htsMsg.get("method") + " " + htsMsg);
 			handleHTSMsg(htsMsg);
-			
+
 			return htsMsg; 
 		}
-		
+
 		public void send(HTSMsg msg) throws IOException{
-			
-			byte[] bytes = msg.serialize();
-//			System.outx.println("Server Sending " + msg.get("method") + " " + msg);
+
+			byte[] bytes;
+			bytes = msg.serialize();
+			System.out.println("Server"+serverConnectionId+" Sending " + msg.get("method") + " " + msg);
 			os.write(bytes);
 			os.flush();
 		}
-		
+
 		private void handleHTSMsg(HTSMsg msg) throws IOException{
 			String method = (String) msg.get("method");
 			handleClientToServerMethod(msg, method); 
 		}	
-		
+
 		private void handleClientToServerMethod(HTSMsg msg, String method) throws IOException {
 			if(method.equals("hello")){
 				MethodHandlers.handleHelloMethod(msg, this);
@@ -117,7 +119,7 @@ public class HTSPServer extends Thread{
 			} else if(method.equals("subscribe")){
 				MethodHandlers.handleSubscribeMethod(msg,this,monitor);
 			} else if(method.equals("unsubscribe")){
-				MethodHandlers.handleUnsubscribeMethod(msg,this);
+				MethodHandlers.handleUnsubscribeMethod(msg,this,monitor);
 			} else if(method.equals("subscriptionChangeWeight")){
 				MethodHandlers.handleSubscriptionChangeWeightMethod(msg,this);
 			} else{
@@ -128,31 +130,32 @@ public class HTSPServer extends Thread{
 		public int getServerConnectionId() {
 			return serverConnectionId;
 		}
-		
+
 		public void run(){
-				while(true){
+			isRunning=true;
+			while(isRunning){
+				try {
+					rcv();
+				} catch (SocketException e) {
 					try {
-						rcv();
-					} catch (SocketException e) {
-						try {
-							os.close();
-							is.close();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						System.out.println("Client disconnected...");
-						break;
-					} catch (IOException e) {
-						
-						e.printStackTrace();
-						break;
+						os.close();
+						is.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
+					System.out.println("Client disconnected...");
+					break;
+				} catch (IOException e) {
+
+					e.printStackTrace();
+					break;
 				}
+			}
 		}
 
 	}
-	
+
 	public void run(){
 		int i=0;
 		while(true){

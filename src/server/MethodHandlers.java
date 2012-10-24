@@ -191,12 +191,12 @@ public class MethodHandlers {
 
 	}
 
-	public static void handleUnsubscribeMethod(HTSMsg msg, HTSPServerConnection conn) throws IOException {
+	public static void handleUnsubscribeMethod(HTSMsg msg, HTSPServerConnection conn, HTSPMonitor monitor) throws IOException {
 		Collection<String> requiredFields = Arrays.asList(new String[]{});
 		if (msg.keySet().containsAll(requiredFields)){
 			HTSMsg reply = new HTSMsg();
 			handleExtraFields(msg,reply);
-			//TODO
+			monitor.unsubscribe(msg,conn);
 			conn.send(reply);
 		} else{
 			System.out.println("Faulty request");

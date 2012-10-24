@@ -121,65 +121,36 @@ public class HTSPMonitor {
 		getHTSPClient(clientId).subscribe((Long)msg.get("channelId"), (Long)msg.get("subscriptionId"));
 		subscriptions.add((Long)msg.get("channelId"),clientId,(Long)msg.get("subscriptionId"),conn.getServerConnectionId());
 	}
+
+	public void unsubscribe(HTSMsg msg, HTSPServerConnection conn) throws IOException {
+		int clientId=0;
+		//TODO handle multiple clients
+		getHTSPClient(clientId).unsubscribe((Long)msg.get("subscriptionId"));
+		subscriptions.remove((Long)msg.get("subscriptionId"));		
+	}
 	
 	public void startSubscription(HTSMsg msg, int clientId) {
-		// TODO Auto-generated method stub
-		try {
-			subscriptions.start(msg, clientId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		subscriptions.start(msg, clientId);
 	}
 
 	public void stopSubscription(HTSMsg msg, int clientId) {
-		// TODO Auto-generated method stub
-		try {
-			subscriptions.stop(msg, clientId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		subscriptions.stop(msg, clientId);
 	}
 
 	public void subscriptionMuxpkt(HTSMsg msg, int clientId) {
-		// TODO Auto-generated method stub
-		try {
-			subscriptions.muxpkt(msg, clientId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		subscriptions.muxpkt(msg, clientId);
 	}
 
 	public void subscriptionQueueStatus(HTSMsg msg, int clientId) {
-		// TODO Auto-generated method stub
-		try {
-			subscriptions.queueStatus(msg, clientId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		subscriptions.queueStatus(msg, clientId);
 	}
 
 	public void subscriptionSignalStatus(HTSMsg msg, int clientId) {
-		// TODO Auto-generated method stub
-		try {
-			subscriptions.signalStatus(msg, clientId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		subscriptions.signalStatus(msg, clientId);
 	}
 
 	public void subscriptionStatus(HTSMsg msg, int clientId) {
-		// TODO Auto-generated method stub
-		try {
-			subscriptions.status(msg, clientId);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		subscriptions.status(msg, clientId);
 	}
 
 	public HTSPServerConnection getServerConnection(int serverConnectionId) {
@@ -190,6 +161,7 @@ public class HTSPMonitor {
 		serverConnections.add(serverConnection);
 		
 	}
+
 
 
 }

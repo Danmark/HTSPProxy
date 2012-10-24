@@ -79,7 +79,7 @@ public class HTSMsg {
 		return ret;
 	}
 
-	public byte[] serialize() throws IOException{
+	public byte[] serialize(){
 		int length;
 		byte[] msgByteArray;
 		if (isSerialized){
@@ -90,10 +90,20 @@ public class HTSMsg {
 			ByteArrayOutputStream msg = new ByteArrayOutputStream();
 			Set<Entry<String,Object>> set = map.entrySet();
 			for (Entry<String, Object> entry : set){
-				createHTSMsgField(entry.getKey(), entry.getValue(), msg);
+				try {
+					createHTSMsgField(entry.getKey(), entry.getValue(), msg);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			for (Object o : list){
-				createHTSMsgField("", o, msg);
+				try {
+					createHTSMsgField("", o, msg);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			length = msg.toByteArray().length;
 			msgByteArray = msg.toByteArray();
@@ -113,7 +123,7 @@ public class HTSMsg {
 		return ret;
 	}
 
-	private void createHTSMsgField(String name, Object value, ByteArrayOutputStream msg) throws IOException{
+	private void createHTSMsgField(String name, Object value, ByteArrayOutputStream msg) throws IOException {
 		int type = getType(value);
 		byte[] data;
 		switch (type) {
@@ -171,12 +181,20 @@ public class HTSMsg {
 		//TYPE
 		msg.write(type & 0xff);
 		//NAMELENGTH
-		msg.write((name.getBytes("UTF-8").length));
+		try {
+			msg.write((name.getBytes("UTF-8").length));
+		} catch (UnsupportedEncodingException e1) {
+			throw new RuntimeException("UTF-8 not supported!");
+		}
 		//DATALENGTH
 		for(int i=3;i>=0;i--)
 			msg.write((byte)((data.length >>> i*8) & 0xff));
 		//NAME
-		msg.write(name.getBytes("UTF-8"));
+		try {
+			msg.write(name.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e1) {
+			throw new RuntimeException("UTF-8 not supported!");
+		}
 		//DATA
 		msg.write(data);
 	}
@@ -244,9 +262,9 @@ public class HTSMsg {
 			if (data.equals(null)) {
 				System.out.println("datan Šr null. " + name);				
 			}
-//			if (name.equals("error")){
-//				System.out.println(data);
-//			}
+			//			if (name.equals("error")){
+			//				System.out.println(data);
+			//			}
 
 			i+=dataLength;			
 		}
@@ -312,12 +330,7 @@ public class HTSMsg {
 	}
 
 	public HTSMsg clone(){
-		try {
-			serialize();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		serialize();
 		return new HTSMsg(htsMsg);
 	}
 }
