@@ -6,8 +6,6 @@ import java.util.List;
 
 import server.HTSPServer.HTSPServerConnection;
 
-import client.HTSPClient;
-
 public class Subscriptions {
 	
 	List<Subscription> subscriptions;
@@ -21,7 +19,6 @@ public class Subscriptions {
 	
 	public synchronized void add(long channelId, int clientId, long serverSubscriptionId, int serverConnectionId){
 		subscriptions.add(new Subscription(channelId,clientId,serverSubscriptionId,serverConnectionId,monitor));
-
 	}
 	
 	public synchronized void start(HTSMsg msg, int clientId) throws IOException{
@@ -29,53 +26,41 @@ public class Subscriptions {
 		HTSPServerConnection c = monitor.getServerConnection(s.serverConnectionId);
 		msg.put("subscriptionId", s.serverSubscriptionId);
 		c.send(msg);
-		// TODO Auto-generated method stub
-
 	}
 	
 	public synchronized void stop(HTSMsg msg, int clientId) throws IOException {
 		Subscription s = getSubscription((Long) msg.get("subscriptionId"), clientId);
 		HTSPServerConnection c = monitor.getServerConnection(s.serverConnectionId);
 		msg.put("subscriptionId", s.serverSubscriptionId);
-		c.send(msg);
-		// TODO Auto-generated method stub
-		
+		c.send(msg);		
 	}
 
 	public synchronized void status(HTSMsg msg, int clientId) throws IOException {
 		Subscription s = getSubscription((Long) msg.get("subscriptionId"), clientId);
 		HTSPServerConnection c = monitor.getServerConnection(s.serverConnectionId);
 		msg.put("subscriptionId", s.serverSubscriptionId);
-		c.send(msg);
-		// TODO Auto-generated method stub
-		
+		c.send(msg);		
 	}
 
 	public synchronized void queueStatus(HTSMsg msg, int clientId) throws IOException {
 		Subscription s = getSubscription((Long) msg.get("subscriptionId"), clientId);
 		HTSPServerConnection c = monitor.getServerConnection(s.serverConnectionId);
 		msg.put("subscriptionId", s.serverSubscriptionId);
-		c.send(msg);
-		// TODO Auto-generated method stub
-		
+		c.send(msg);		
 	}
 
 	public synchronized void signalStatus(HTSMsg msg, int clientId) throws IOException {
 		Subscription s = getSubscription((Long) msg.get("subscriptionId"), clientId);
 		HTSPServerConnection c = monitor.getServerConnection(s.serverConnectionId);
 		msg.put("subscriptionId", s.serverSubscriptionId);
-		c.send(msg);
-		// TODO Auto-generated method stub
-		
+		c.send(msg);		
 	}
 
 	public synchronized void muxpkt(HTSMsg msg, int clientId) throws IOException {
 		Subscription s = getSubscription((Long) msg.get("subscriptionId"), clientId);
 		HTSPServerConnection c = monitor.getServerConnection(s.serverConnectionId);
 		msg.put("subscriptionId", s.serverSubscriptionId);
-		c.send(msg);
-		// TODO Auto-generated method stub
-		
+		c.send(msg);		
 	}
 	
 	
@@ -85,6 +70,7 @@ public class Subscriptions {
 	}
 	
 	private Subscription getSubscription(long subscriptionId, int clientId){
+		//TODO this method is not very efficient...
 		for(Subscription s : subscriptions){
 			if (s.clientId==clientId && s.clientSubscriptionId==subscriptionId){
 				return s;

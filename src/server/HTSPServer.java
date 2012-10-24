@@ -37,14 +37,14 @@ public class HTSPServer extends Thread{
 	}
 	
 	public class HTSPServerConnection extends Thread{
-		private InputStream is;
+		private BufferedInputStream is;
 		private BufferedOutputStream os;
 		private int serverConnectionId;
 		
 		public HTSPServerConnection(Socket socket, HTSPServer server, int serverConnectionId) {
 			this.serverConnectionId = serverConnectionId;
 			try {
-				this.is = socket.getInputStream();
+				this.is = new BufferedInputStream(socket.getInputStream());
 				this.os = new BufferedOutputStream(socket.getOutputStream());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
